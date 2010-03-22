@@ -18,9 +18,10 @@
    The costs are integers randomly generated in the range min cost to max cost.
 
 """
-
 import sys
 import random
+
+out_fname = "tsp.dat"
 
 # http://docs.python.org/library/itertools.html#itertools.combinations
 # Note: this is available in Python 2.6
@@ -58,7 +59,8 @@ def main():
    num_cities = int(sys.argv[1])
    min_cost = int(sys.argv[2])
    max_cost = int(sys.argv[3])
-   outfile = open("tsp.dat", "w")
+   global out_fname
+   outfile = open(out_fname, "w")
    outfile.write(str(num_cities) + "\n")
    
    # Generate pairings, write them to a file.

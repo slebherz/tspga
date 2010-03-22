@@ -18,10 +18,11 @@
 
 using namespace std;
 
-#define EPSILON        10              /* SETTING */
-#define BEST_PATH      100             /* SETTING */
-#define MAX_ITERATIONS 1000            /* SETTING */
-#define INITIAL_POP    "initial.dat"   /* SETTING */
+#define EPSILON              10              /* SETTING */
+#define BEST_PATH            100             /* SETTING */
+#define MAX_ITERATIONS       1000            /* SETTING */
+#define INITIAL_PATHS_FNAME  "initial.dat"   /* SETTING */
+#define TSP_DATA_FNAME       "tspga.dat"     /* SETTING */
 
 bool terminate(int num_iterations, float highest_fitness);
 
@@ -34,7 +35,7 @@ int main() {
          2) Genesis event occurs.
          3) Evaluate initial population
    */
-   Population tsp_pop(INITIAL_POP);
+   Population tsp_pop(INITIAL_PATHS_FNAME, TSP_DATA_FNAME);
    tsp_pop.Genesis();
    tsp_pop.Evaluate();
    

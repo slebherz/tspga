@@ -8,6 +8,12 @@
    Usage: python tsp-builder.py <# cities> <min cost> <max cost>
    
    The cost table is written to a file specified in this script.
+
+   File Format:
+   # cities
+   cityA cityB cost
+   cityA cityC cost
+   ...
    
    The costs are integers randomly generated in the range min cost to max cost.
 
@@ -16,6 +22,8 @@
 import sys
 import random
 
+# http://docs.python.org/library/itertools.html#itertools.combinations
+# Note: this is available in Python 2.6
 def combinations(iterable, r):
     # combinations('ABCD', 2) --> AB AC AD BC BD CD
     # combinations(range(4), 3) --> 012 013 023 123
@@ -37,6 +45,7 @@ def combinations(iterable, r):
         yield tuple(pool[i] for i in indices)
 
 """
+   0) Write the number of cities to a file.
    1) Generate all possible combinations of city pairings.
    2) Write pairings to a file, with a random cost per pairing.
 """
@@ -50,6 +59,7 @@ def main():
    min_cost = int(sys.argv[2])
    max_cost = int(sys.argv[3])
    outfile = open("tsp.dat", "w")
+   outfile.write(str(num_cities) + "\n")
    
    # Generate pairings, write them to a file.
    for pairing in combinations(range(1, num_cities+1), 2):

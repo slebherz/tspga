@@ -17,7 +17,8 @@ class Individual {
 
 protected:
    vector<int> chromosome;
-   
+   double raw_fitness;
+   double fitness;
 
 public:
 

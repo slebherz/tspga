@@ -24,7 +24,7 @@ using namespace std;
 #define INITIAL_PATHS_FNAME  "initial.dat"   /* SETTING */
 #define TSP_DATA_FNAME       "tspga.dat"     /* SETTING */
 
-bool terminate(int num_iterations, float highest_fitness);
+bool terminate(int num_iterations, double highest_fitness);
 
 int main() {
    int num_iterations = 0;
@@ -66,7 +66,7 @@ int main() {
       1) Reached max number of iterations.
       2) Fittest individual's path is within epsilon of the best path.
 */
-bool terminate(int num_iterations, float highest_fitness) {
+bool terminate(int num_iterations, double highest_fitness) {
    if(num_iterations == MAX_ITERATIONS)
       return true;
    

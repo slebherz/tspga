@@ -1,11 +1,7 @@
 /*
-File: individual.cpp
-
-Represents an individual of a popultion for a genetic algorithm.
-
-
+   Individual Class - Maintains an individual which represents a
+                      path in the TSP.
 */
-
 
 #include <cstdlib>
 #include <iostream>

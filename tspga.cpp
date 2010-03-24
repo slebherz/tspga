@@ -57,7 +57,7 @@ int main() {
    }
 
    cout << "Total Generations: " << num_iterations << endl;
-   tsp_pop.Fittest().Print()
+   tsp_pop.Fittest().Print();
    return 0;
 }
 

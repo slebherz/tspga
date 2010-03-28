@@ -11,15 +11,7 @@
 
 using namespace std;
 
-   Individual::Individual() {
-
-   }
-
-   Individual::Individual(vector<int> path) {
-
-   }
-
-   double Individual::Fitness() { return this->fitness; }
+   Individual::Individual(vector<int> path) : chromosome(path) { }
    
    double Individual::Raw_Fitness() { return this->raw_fitness; }
    
@@ -45,5 +37,4 @@ using namespace std;
       }
       cout << endl;
       cout << this->raw_fitness << endl;
-      cout << this->fitness << endl;
    }

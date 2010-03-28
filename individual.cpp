@@ -6,24 +6,25 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include "individual.h"
 
 using namespace std;
 
-   Individual() {
+   Individual::Individual() {
 
    }
 
-   double fitness() {
-
+   double Individual::Fitness() {
+      return this->fitness;
    }
  
-  
-   double raw_fitness() {
+   double Individual::Raw_Fitness() {
+      return this->raw_fitness;
+   }
    
-   }  
-
-   
-   void Mutate() {
+   /*
+      Performs
+   */
+   void Individual::Mutate() {
 
    }
-};

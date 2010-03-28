@@ -25,8 +25,8 @@ using namespace std;
       city2 = rand() % this->chromosome.size();
       
       // Ensure the cities are unique.
-      while(city1 == city2) { city2 = rand() % this->chromosome.size(); }
-      
+      while(city1 == city2)
+         city2 = rand() % this->chromosome.size();
       swap(this->chromosome[city1], this->chromosome[city2]);
    }
    

@@ -3,6 +3,10 @@
                       path in the TSP.
 */
 
+
+#ifndef _INDIVIDUAL_H_
+#define _INDIVIDUAL_H_
+
 #include <vector>
 
 using namespace std;
@@ -21,3 +25,5 @@ public:
    void Mutate();
    void Print();
 };
+
+#endif

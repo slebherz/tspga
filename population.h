@@ -3,6 +3,9 @@
                       representing a possible solution to a TSP.
 */
 
+#ifndef _POPULATION_H_
+#define _POPULATION_H_
+
 #include <vector>
 #include <string>
 #include "individual.h"
@@ -21,3 +24,5 @@ public:
    void Genesis();
    void Evaluate();
 };
+
+#endif

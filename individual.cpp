@@ -23,8 +23,12 @@ using namespace std;
    }
    
    /*
-      Performs
+      Selects two cities at random and exchanges them.
    */
    void Individual::Mutate() {
 
+   }
+   
+   void Individual::Print() {
+   
    }

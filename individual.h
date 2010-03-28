@@ -16,12 +16,9 @@ class Individual {
 protected:
    vector<int> chromosome;
    double raw_fitness;
-   double fitness;
 
 public:
-   Individual();
    Individual(vector<int> path);
-   double Fitness();
    double Raw_Fitness();
    void Mutate();
    void Print();

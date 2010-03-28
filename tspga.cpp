@@ -21,6 +21,7 @@ using namespace std;
 #define EPSILON              10              /* SETTING */
 #define BEST_PATH            100             /* SETTING */
 #define MAX_ITERATIONS       1000            /* SETTING */
+#define ELITISM              0.10            /* percent of pop to preserve */
 #define INITIAL_PATHS_FNAME  "initial.dat"   /* SETTING */
 #define TSP_DATA_FNAME       "tspga.dat"     /* SETTING */
 

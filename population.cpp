@@ -14,7 +14,7 @@ Individual Population::Fittest() {
 }
 
 void Population::Reproduce() {
-
+   // lots of crossover business
 }
 
 void Population::Selection() {
@@ -26,7 +26,9 @@ void Population::Merge() {
 }
 
 void Population::Genesis() {
-
+   // read TSP data file
+   // read initial paths file
+   // create individuals with initial paths
 }
 
 void Population::Evaluate() {

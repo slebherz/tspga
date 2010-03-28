@@ -14,9 +14,11 @@ class Population {
 private:  
    vector<Individual> current_individuals; 
    vector<Individual> new_individuals;
+   int size;
    double elitism;
 public:
-   Population(string initial_paths_file, string data_file, double elitism);
+   Population(string initial_paths_file, string tsp_data_file, int size, 
+              double elitism);
    Individual Fittest();
    void Reproduce();
    void Selection();

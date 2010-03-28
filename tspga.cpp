@@ -13,8 +13,8 @@
 */
 
 #include <iostream>
-#include <population.h>
-#include <individual.h>
+#include "population.h"
+#include "individual.h"
 
 using namespace std;
 

@@ -8,22 +8,26 @@
 
 using namespace std;
 
-class Population {
-private:
-  
+Individual Population::Fittest() {
 
-public:
-   vector<Population> bar;
-   
-   /* 
-      I forget c++ class syntax...
-      btw, do we even need header files?
-      These are expected by tspga.cpp: 
-   */
-   Individual Fittest();
-   void Reproduce();
-   void Selection();
-   void Merge();
-   void Genesis();
-   void Evaluate();
-};
+}
+
+void Population::Reproduce() {
+
+}
+
+void Population::Selection() {
+
+}
+
+void Population::Merge() {
+
+}
+
+void Population::Genesis() {
+
+}
+
+void Population::Evaluate() {
+
+}

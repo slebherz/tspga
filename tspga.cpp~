@@ -36,7 +36,7 @@ int main() {
          2) Genesis event occurs.
          3) Evaluate initial population
    */
-   Population tsp_pop(INITIAL_PATHS_FNAME, TSP_DATA_FNAME, ELITISM);
+   Population tsp_pop(INITIAL_PATHS_FNAME, TSP_DATA_FNAME);
    tsp_pop.Genesis();
    tsp_pop.Evaluate();
    

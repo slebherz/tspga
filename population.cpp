@@ -3,6 +3,7 @@
                       representing a possible solution to a TSP.
 */
 
+#include "population.h"
 #include <cstdlib>
 #include <vector>
 

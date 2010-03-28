@@ -21,6 +21,7 @@ using namespace std;
 #define EPSILON              10              /* SETTING */
 #define BEST_PATH            100             /* SETTING */
 #define MAX_ITERATIONS       1000            /* SETTING */
+#define POP_SIZE             20              /* size of popultion */
 #define ELITISM              0.10            /* percent of pop to preserve */
 #define INITIAL_PATHS_FNAME  "initial.dat"   /* SETTING */
 #define TSP_DATA_FNAME       "tspga.dat"     /* SETTING */
@@ -36,7 +37,7 @@ int main() {
          2) Genesis event occurs.
          3) Evaluate initial population
    */
-   Population tsp_pop(INITIAL_PATHS_FNAME, TSP_DATA_FNAME, ELITISM);
+   Population tsp_pop(INITIAL_PATHS_FNAME, TSP_DATA_FNAME, POP_SIZE, ELITISM);
    tsp_pop.Genesis();
    tsp_pop.Evaluate();
    

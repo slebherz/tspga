@@ -14,6 +14,7 @@ class Population {
 private:  
    vector<Individual> current_individuals; 
    vector<Individual> new_individuals;
+   vector< vector<Individual> > breeders;
    
    // hash for cost table (maps vector<int> to int)
    // hash for uniques    (maps vector<int> to int)

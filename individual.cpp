@@ -15,6 +15,10 @@ using namespace std;
 
    }
 
+   Individual::Individual(vector<int> path) {
+
+   }
+
    double Individual::Fitness() { return this->fitness; }
    
    double Individual::Raw_Fitness() { return this->raw_fitness; }
@@ -29,7 +33,7 @@ using namespace std;
       city2 = rand() % this->chromosome.size();
       
       // Ensure the cities are unique.
-      while(city1 == city2) { city2 = rand() % a.size(); }
+      while(city1 == city2) { city2 = rand() % this->chromosome.size(); }
       
       swap(this->chromosome[city1], this->chromosome[city2]);
    }

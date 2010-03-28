@@ -20,6 +20,7 @@ protected:
 
 public:
    Individual();
+   Individual(vector<int> path);
    double Fitness();
    double Raw_Fitness();
    void Mutate();

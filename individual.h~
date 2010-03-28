@@ -16,8 +16,8 @@ protected:
 
 public:
    Individual();
-   double Fitness();
-   double Raw_Fitness();
+   double fitness();
+   double raw_fitness();
    void Mutate();
    void Print();
 };

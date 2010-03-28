@@ -47,7 +47,7 @@ int main() {
          3) Merge current population and offspring.
          4) log dump, visualization update, etc...
    */
-   while(!terminate(num_iterations, tsp_pop.Fittest().Raw_Fitness())) {
+   while(!terminate(num_iterations, tsp_pop.Fittest().raw_fitness)) {
       tsp_pop.Reproduce();
       tsp_pop.Evaluate();
       tsp_pop.Merge();

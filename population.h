@@ -16,6 +16,8 @@ private:
    vector<Individual> new_individuals;
    int size;
    double elitism;
+   string initial_paths_file;
+   string tsp_data_file;
 public:
    Population(string initial_paths_file, string tsp_data_file, int size, 
               double elitism);
@@ -26,5 +28,4 @@ public:
    void Genesis();
    void Evaluate();
 };
-
 #endif

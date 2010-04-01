@@ -22,6 +22,7 @@ public:
    double Raw_Fitness();
    void Mutate();
    void Print();
+   vector<int> Chromosome();
 };
 
 #endif

@@ -15,6 +15,8 @@ using namespace std;
    
    double Individual::Raw_Fitness() { return this->raw_fitness; }
    
+   vector<int> Individual::Chromosome() { return this->chromosome; }
+   
    /*
       Selects two cities at random and exchanges them.
    */

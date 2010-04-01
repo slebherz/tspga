@@ -10,11 +10,13 @@
 #include <string>
 #include "individual.h"
 
+#define NUM_BREED_PAIRS 2 /* SETTING */
+
 class Population {
 private:  
    vector<Individual> current_individuals; 
    vector<Individual> new_individuals;
-   vector< vector<Individual> > breeders;
+   vector< vector< vector<int> > > breeders;
    
    // hash for cost table (maps vector<int> to int)
    // hash for uniques    (maps vector<int> to int)

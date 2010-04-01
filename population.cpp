@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <vector>
 #include <iostream>
+#include <istream>
 #include <fstream>
 #include <cmath>
 #include "explode.h"
@@ -16,15 +17,37 @@ using namespace std;
 /* INCOMPLETE - add MUTATION_RATE */
 Population::Population(string initial_paths_file, string tsp_data_file,
                        int size, double elitism) {
-   this->tsp_data_file = tsp_data_file;
-   
+
+   string line;
+   vector<double> line_values;
+   set<int> city_pair;
+
+   this->elitism = elitism;
+   this->size = size;
+
    // Load the cost table
-   
-   // Assign size and elitism
+   ifstream cost_file;
+   cost_file.open(tsp_data_file.c_str());
+
+   // throw away the first line (number of cities)
+   cost_file >> line;
+
+   // populate the cost table with key/value pairs of (citypair, travel_cost)
+   while( !cost_file.eof() )
+   {
+      cost_file >> line;
+      line_values = double_explode(" ", line);
+      city_pair.insert( (int)line_values[0] );
+      city_pair.insert( (int)line_values[1] );
+      this->cost_table[city_pair] = line_values[2];
+      city_pair.clear();
+   }
+   cost_file.close();
 }
 
 Individual Population::Fittest() {
    // return the most fit individual in the population
+   
 }
 
 void Population::Reproduce() {

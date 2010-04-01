@@ -8,17 +8,20 @@
 
 #include <vector>
 #include <string>
+#include <map>
+#include <set>
 #include "individual.h"
 
 class Population {
 private:  
-   vector<Individual> current_individuals; 
+   vector<Individual> current_individuals;
    vector<Individual> new_individuals;
    vector< vector< vector<int> > > breeders;
    
-   // hash for cost table (maps vector<int> to int)
+   // hash for cost table: maps set<int> to double (city pairs to distance)
+   map< set<int>, double > cost_table;
    // hash for uniques    (maps vector<int> to int)
-   
+
    unsigned int size;
    double elitism;
    double mutation_rate;

@@ -40,3 +40,4 @@ using namespace std;
       cout << endl;
       cout << this->raw_fitness << endl;
    }
+

@@ -10,6 +10,7 @@
 #include <istream>
 #include <fstream>
 #include <cmath>
+#include <algorithm>
 #include "explode.h"
 
 using namespace std;
@@ -60,7 +61,7 @@ void Population::Reproduce() {
    the more likely it will be selected to breed.
 */
 void Population::Selection() {
-   unsigned int i, j, prev_ind_index;
+   unsigned int i=0, j, prev_ind_index;
    bool asexual;
    double total_pop_fitness = 0;
    double prev_sum = 0;
@@ -74,9 +75,10 @@ void Population::Selection() {
       total_pop_fitness += (*it).Raw_Fitness();
       
    // 2) Build lookup table of percent contribution to total.
-    for(it = this->current_individuals.begin(); it != this->current_individuals.end(); it++)
+    for(it = this->current_individuals.begin(); it != this->current_individuals.end(); it++) {
       percent_contrib[i] = prev_sum + ((*it).Raw_Fitness() / total_pop_fitness);
-   
+      i++;
+   }
    /* 
       3) Make breeder pairs:
          Until we have paired up enough breeders:
@@ -192,8 +194,18 @@ void Population::Mutation() {
    population live to breed again.
 */
 void Population::Merge() {
+
+   vector<Individual> next_individuals;
    // pick the best <elitism>% members of old population
-   
+   int i, elite_count = (int)(elitism * size);
+
+  sort(this->current_individuals.begin(), this->current_individuals.end());
+
+   for(i = 0; i < elite_count; i++) {
+      next_individuals.push_back(this->current_individuals.back());
+      this->current_individuals.pop_back();
+   }
+
    // fill remaining slots with the best of old and new populations
    
    // [size - size * <1 - elitism>] individuals
@@ -222,3 +234,8 @@ void Population::Evaluate() {
             sum += cost(pair)
    */
 }
+
+bool operator<(const Individual& lhs, const Individual& rhs) {
+  return ((Individual)lhs).Raw_Fitness() < ((Individual)rhs).Raw_Fitness();
+}
+

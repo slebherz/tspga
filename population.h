@@ -10,8 +10,6 @@
 #include <string>
 #include "individual.h"
 
-#define NUM_BREED_PAIRS 2 /* SETTING */
-
 class Population {
 private:  
    vector<Individual> current_individuals; 
@@ -21,8 +19,9 @@ private:
    // hash for cost table (maps vector<int> to int)
    // hash for uniques    (maps vector<int> to int)
    
-   int size;
+   unsigned int size;
    double elitism;
+   double mutation_rate;
    string initial_paths_file;
    string tsp_data_file;
 public:
@@ -32,6 +31,8 @@ public:
    void Reproduce();
    void Selection();
    void Breed();
+   void Crossover(vector< vector<int> > breed_pair);
+   void Mutation();
    void Merge();
    void Genesis();
    void Evaluate();

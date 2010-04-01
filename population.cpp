@@ -13,6 +13,7 @@
 
 using namespace std;
 
+/* INCOMPLETE - add MUTATION_RATE */
 Population::Population(string initial_paths_file, string tsp_data_file,
                        int size, double elitism) {
    this->tsp_data_file = tsp_data_file;
@@ -66,7 +67,7 @@ void Population::Selection() {
          (POP SIZE / 2). This is because each breeding pair should, 
          ideally, breed 2 children for a total of POP SIZE children.
    */
-   while(this->breeders.size() < ceil(this->current_individuals.size() / 2)) {
+   while(this->breeders.size() < ceil(this->size / 2)) {
       
       for(i = 0; i < 2; i++) { // Make a couple.
          current_chance = 0;
@@ -104,14 +105,65 @@ void Population::Selection() {
    }
 }
 
+/*
+   Breeds a population of new individuals from the breeding pairs:
+      1) Crossover
+      2) Mutation
+      3) Filter repeats
+*/
 void Population::Breed() {
-   // while the number of new individuals is less than the desired number:
-      // crossover
-      // mutation
-      // filter repeats
-   // empty this->breeders
+   vector< vector< vector<int> > >::iterator it;
+   vector<Individual>::iterator it2;
+   
+   while(this->new_individuals.size() < this->size) {
+      
+      // 1) Crossover
+      for(it = this->breeders.begin(); it != this->breeders.end(); it++)
+         this->Crossover(*it);
+      
+      // 2) Mutation
+      this->Mutation();
+
+      /*
+         3) Filter repeats: avoid wasting resources by filtering 
+            out those new individuals that have already been evaluated
+            in some prior generation.
+      */
+      for(it2 = this->new_individuals.begin(); it2 != this->new_individuals.end(); it2++) {
+         // if ind is in uniques hash remove them from new pop
+      }
+   }
+   this->breeders.clear();
 }
 
+/*
+   Breed the pair to generate two children.
+*/
+void Population::Crossover(vector< vector<int> > breed_pair) {
+
+}
+
+/*
+   Mutate the individuals in the population with a specified rate.
+*/
+void Population::Mutation() {
+   double mutation_chance;
+   vector<Individual>::iterator it;
+   
+   for(it = this->new_individuals.begin(); it != this->new_individuals.end(); it++) {
+      mutation_chance = rand() / (double) (RAND_MAX + 1.0);
+      if(this->mutation_rate < mutation_chance)
+         (*it).Mutate();
+   }
+}
+
+/*
+   Merge the current population and the population of freshly evaluated
+   individuals into the next generation of the current population.
+   
+   Elitism ensures that a portion of the best performers from the current
+   population live to breed again.
+*/
 void Population::Merge() {
    // pick the best <elitism>% members of old population
    // fill remaining slots with the best of old and new populations
@@ -125,8 +177,7 @@ void Population::Genesis() {
    path_file_stream.open(this->initial_paths_file.c_str());
 
    // create individuals with initial paths
-   int i;
-   for(i = 0; i < this->size; i++) {
+   for(unsigned int i = 0; i < this->size; i++) {
       path_file_stream >> line_in;
       path = int_explode(" ", line_in);
       this->current_individuals.push_back(Individual(path));

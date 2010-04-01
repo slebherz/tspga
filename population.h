@@ -34,7 +34,7 @@ public:
    void Reproduce();
    void Selection();
    void Breed();
-   void Crossover(vector< vector<int> > breed_pair);
+   void Crossover(vector<int> parent_a, vector<int> parent_b);
    void Mutation();
    void Merge();
    void Genesis();

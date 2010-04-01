@@ -142,7 +142,7 @@ void Population::Breed() {
       
       // 1) Crossover
       for(it = this->breeders.begin(); it != this->breeders.end(); it++)
-         this->Crossover(*it);
+         this->Crossover((*it)[0], (*it)[1]);
       
       // 2) Mutation
       this->Mutation();
@@ -153,16 +153,17 @@ void Population::Breed() {
             in some prior generation.
       */
       for(it2 = this->new_individuals.begin(); it2 != this->new_individuals.end(); it2++) {
-         // if ind is in uniques hash remove them from new pop
+         // if ind is in uniques hash
+            // remove them from this->new_pop
       }
    }
    this->breeders.clear();
 }
 
 /*
-   Breed the pair to generate two children.
+   Breed the pair to generate two children. Uses the 
 */
-void Population::Crossover(vector< vector<int> > breed_pair) {
+void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
 
 }
 
@@ -182,14 +183,19 @@ void Population::Mutation() {
 
 /*
    Merge the current population and the population of freshly evaluated
-   individuals into the next generation of the current population.
+   individuals into the next generation of the current population:
+      1) Choose the best <elitism>% members of the current population
+      2) Fill the remaining slots with the best members of the
+         union of the current and new populations.
    
    Elitism ensures that a portion of the best performers from the current
    population live to breed again.
 */
 void Population::Merge() {
    // pick the best <elitism>% members of old population
+   
    // fill remaining slots with the best of old and new populations
+   
    // [size - size * <1 - elitism>] individuals
 }
 

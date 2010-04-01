@@ -23,6 +23,7 @@ using namespace std;
 #define MAX_ITERATIONS       1000            /* SETTING */
 #define POP_SIZE             20              /* size of popultion */
 #define ELITISM              0.10            /* percent of pop to preserve */
+#define MUTATION_RATE        0.10            /* chance a new ind will mutate */
 #define INITIAL_PATHS_FNAME  "initial.dat"   /* SETTING */
 #define TSP_DATA_FNAME       "tspga.dat"     /* SETTING */
 

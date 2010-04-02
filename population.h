@@ -37,7 +37,7 @@ public:
    void Breed();
    void Crossover(vector<int> parent_a, vector<int> parent_b);
    void Mutation();
-   void Merge();
+   void Merge(bool init=false);
    void Genesis();
    void Evaluate();
 };

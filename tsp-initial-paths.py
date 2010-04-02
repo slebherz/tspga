@@ -30,10 +30,12 @@ def main():
       unique_paths[tuple(path)] = True
    
    # Dump the uniques to a file.
+   line = ""
    for path in unique_paths:
       for city in path:
-         outfile.write(str(city) + " ")
-      outfile.write("\n")
+         line += str(city) + " "
+      outfile.write(line[:-1] + "\n")
+      line = ""
    print "Successfully wrote " + out_fname
 
 if __name__ == "__main__":

@@ -18,10 +18,10 @@
 
 using namespace std;
 
-#define EPSILON              10              /* SETTING */
-#define BEST_PATH            100             /* SETTING */
+#define EPSILON              5              /* SETTING */
+#define BEST_PATH            482             /* SETTING */
 #define MAX_ITERATIONS       1000            /* SETTING */
-#define POP_SIZE             20              /* size of popultion */
+#define POP_SIZE             9             /* size of popultion. this is the number of paths that Genesis will read in */
 #define ELITISM              0.10            /* percent of pop to preserve */
 #define MUTATION_RATE        0.10            /* chance a new ind will mutate */
 #define INITIAL_PATHS_FNAME  "initial.dat"   /* SETTING */
@@ -30,7 +30,7 @@ using namespace std;
 bool terminate(int num_iterations, double highest_fitness);
 
 int main() {
-   //int num_iterations = 0;
+   int num_iterations = 0;
    
    /*
       Setup for evolution loop:
@@ -39,8 +39,9 @@ int main() {
          3) Evaluate initial population
    */
    Population tsp_pop(INITIAL_PATHS_FNAME, TSP_DATA_FNAME, POP_SIZE, ELITISM);
- //  tsp_pop.Genesis();
- //  tsp_pop.Evaluate();
+   tsp_pop.Genesis();
+   tsp_pop.Evaluate();
+   tsp_pop.Merge(true);
    
    /*
       Evolution - Do this until termination conditions are met:
@@ -49,12 +50,20 @@ int main() {
          3) Merge current population and offspring.
          4) log dump, visualization update, etc...
    */
-/*
+
    while(!terminate(num_iterations, tsp_pop.Fittest().Raw_Fitness())) {
-      tsp_pop.Reproduce();
-      tsp_pop.Evaluate();
-      tsp_pop.Merge();
       
+      cout << "Calling Reproduce()" << endl;
+      tsp_pop.Reproduce();
+      
+      
+      
+      /*
+      cout << "Calling Evaluate()" << endl;
+      tsp_pop.Evaluate();
+      cout << "Calling Merge()" << endl;
+      tsp_pop.Merge();
+      */
       num_iterations++;
       if(num_iterations % 10 == 0)
          cout << "Generation: " << num_iterations << endl;
@@ -62,7 +71,7 @@ int main() {
 
    cout << "Total Generations: " << num_iterations << endl;
    tsp_pop.Fittest().Print();
-*/
+
    return 0;
 }
 

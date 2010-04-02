@@ -28,6 +28,8 @@ Population::Population(string initial_paths_file, string tsp_data_file,
 
    this->elitism = elitism;
    this->size = size;
+   this->initial_paths_file = initial_paths_file;
+   this->tsp_data_file = tsp_data_file;
 
    // Load the cost table
    ifstream cost_file;
@@ -50,13 +52,16 @@ Population::Population(string initial_paths_file, string tsp_data_file,
 }
 
 Individual Population::Fittest() {
+   
    // return the most fit individual in the population
    sort(this->current_individuals.begin(), this->current_individuals.end());
-   return this->current_individuals.back();
+   return this->current_individuals.front();
 }
 
 void Population::Reproduce() {
+   cout << "\tCalling Selection()" << endl;
    this->Selection();
+   cout << "\tCalling Breed()" << endl;
    this->Breed();
 }
 
@@ -75,13 +80,13 @@ void Population::Selection() {
    vector<Individual>::iterator it;
 
    // 1) Calculate total fitness of the population.
-   for(it = this->current_individuals.begin(); it != this->current_individuals.end(); it++)
+   for(it = this->current_individuals.begin(); it != this->current_individuals.end(); it++) {
       total_pop_fitness += (*it).Raw_Fitness();
-      
+   }
+   
    // 2) Build lookup table of percent contribution to total.
     for(it = this->current_individuals.begin(); it != this->current_individuals.end(); it++) {
-      percent_contrib[i] = prev_sum + ((*it).Raw_Fitness() / total_pop_fitness);
-      i++;
+      percent_contrib.push_back(prev_sum + ((*it).Raw_Fitness() / total_pop_fitness));
    }
    /* 
       3) Make breeder pairs:
@@ -95,8 +100,8 @@ void Population::Selection() {
          We will match up a number of pairs equal to the ceiling of
          (POP SIZE / 2). This is because each breeding pair should, 
          ideally, breed 2 children for a total of POP SIZE children.
-   */
-   while(this->breeders.size() < ceil(this->size / 2)) {
+   */   
+   while(this->breeders.size() < (this->size * 1.1)) { // 110% of pop size...
       
       for(i = 0; i < 2; i++) { // Make a couple.
          current_chance = 0;
@@ -144,14 +149,23 @@ void Population::Breed() {
    vector< vector< vector<int> > >::iterator it;
    vector<Individual>::iterator it2;
    
+   cout << "# new individuals: " << this->new_individuals.size() << endl;
+   
    while(this->new_individuals.size() < this->size) {
       
+      cout << "\t\tCrossover loop" << endl;
+      
       // 1) Crossover
-      for(it = this->breeders.begin(); it != this->breeders.end(); it++)
+      for(it = this->breeders.begin(); it != this->breeders.end(); it++) {
          this->Crossover((*it)[0], (*it)[1]);
+      }
+      
+      cout << "\t\tMutation()" << endl;
       
       // 2) Mutation
       this->Mutation();
+
+      cout << "\t\tFilter loop" << endl;
 
       /*
          3) Filter repeats: avoid wasting resources by filtering 
@@ -159,12 +173,10 @@ void Population::Breed() {
             in some prior generation.
       */
       for(it2 = this->new_individuals.begin(); it2 != this->new_individuals.end(); it2++) {
-         // if ind is in uniques hash
-            // remove them from this->new_pop
-
+      
          // if this chromosome has never been seen before, add it to the list
          // and evaluate it
-         if(this->unique_paths.find(it2->Chromosome()) != this->unique_paths.end()) {
+         if(this->unique_paths.find(it2->Chromosome()) == this->unique_paths.end()) {
             this->unique_paths.insert(it2->Chromosome());
          } else {
             this->new_individuals.erase(it2);
@@ -175,7 +187,7 @@ void Population::Breed() {
 }
 
 /*
-   Breed the pair to generate two children.
+   Breed the pair to generate a child.
    
    Uses the Greedy Subtour Crossover approach.
       INSERT REFERENCE TO GREEDY SUBTOUR CROSSOVER APPROACH!
@@ -300,38 +312,52 @@ void Population::Mutation() {
    Elitism ensures that a portion of the best performers from the current
    population live to breed again.
 */
-void Population::Merge() {
-
+void Population::Merge(bool init) {
    vector<Individual> next_individuals;
    vector<Individual> unused_individuals;
-   // pick the best <elitism>% members of old population
-   int i, elite_count = (int)floor((elitism * size) + 0.5);
-
-   sort(this->current_individuals.begin(), this->current_individuals.end());
-
-   for(i = 0; i < elite_count; i++) {
-      next_individuals.push_back(this->current_individuals.back());
-      this->current_individuals.pop_back();
+   vector<Individual>::iterator itI;
+   
+   // The very first merge is not very complicated.
+   if(init) {
+      for(itI = this->new_individuals.begin(); 
+          itI != this->new_individuals.end(); itI++) {
+      
+         Individual new_ind = *itI;
+         this->current_individuals.push_back(new_ind);
+      }
    }
+   
+   // Standard merge for all generations other than the very first.
+   else {
+      // pick the best <elitism>% members of old population
+      int i, elite_count = (int)floor((elitism * size) + 0.5);
 
-   // pool old and new populations and sort
-   unused_individuals.insert(unused_individuals.end(),
-                             this->new_individuals.begin(),
-                             this->new_individuals.end());
-   unused_individuals.insert(unused_individuals.end(),
-                             this->current_individuals.begin(),
-                             this->current_individuals.end());
+      sort(this->current_individuals.rbegin(), this->current_individuals.rend());
 
-   sort(unused_individuals.begin(), unused_individuals.end());
+      for(i = 0; i < elite_count; i++) {
+         next_individuals.push_back(this->current_individuals.back());
+         this->current_individuals.pop_back();
+      }
 
-   //  fill remaining slots with the best of old and new populations
-   int non_elite_count = size - elite_count;
-   for(i = 0; i < non_elite_count; i++) {
-      next_individuals.push_back(unused_individuals.back());
-      unused_individuals.pop_back();
+      // pool old and new populations and sort
+      unused_individuals.insert(unused_individuals.end(),
+                                this->new_individuals.begin(),
+                                this->new_individuals.end());
+      unused_individuals.insert(unused_individuals.end(),
+                                this->current_individuals.begin(),
+                                this->current_individuals.end());
+
+      sort(unused_individuals.rbegin(), unused_individuals.rend());
+
+      //  fill remaining slots with the best of old and new populations
+      int non_elite_count = size - elite_count;
+      for(i = 0; i < non_elite_count; i++) {
+         next_individuals.push_back(unused_individuals.back());
+         unused_individuals.pop_back();
+      }
+      this->current_individuals = next_individuals;
    }
-
-   this->current_individuals = next_individuals;
+   this->new_individuals.clear();
 }
 
 void Population::Genesis() {
@@ -339,14 +365,13 @@ void Population::Genesis() {
    vector<int> path;
    ifstream path_file_stream;
    path_file_stream.open(this->initial_paths_file.c_str());
-
+   
    // create individuals with initial paths
    for(unsigned int i = 0; i < this->size; i++) {
-      path_file_stream >> line_in;
+      getline(path_file_stream, line_in);
       path = int_explode(" ", line_in);
-      this->current_individuals.push_back(Individual(path));
+      this->new_individuals.push_back(Individual(path));
    }
-
    path_file_stream.close();
 }
 
@@ -355,19 +380,23 @@ void Population::Evaluate() {
    set<int> city_pair;
    unsigned int i, j;
    double fitness_sum = 0;
-
-   // for each indiviual in th enew population
+   
+   // for each indiviual in the new population
    for(i = 0; i < new_individuals.size(); i++) {
       temp_chromosome = new_individuals[i].Chromosome();
       // sum the cost for each adjacent city-pair in an indiviual's chromsome
       for(j = 0; j < temp_chromosome.size() - 1; j++) {
          city_pair.insert(temp_chromosome[j]);
          city_pair.insert(temp_chromosome[j+1]);
-         fitness_sum += cost_table[city_pair];
+         fitness_sum += this->cost_table[city_pair];
+         city_pair.clear();
       }
       new_individuals[i].Raw_Fitness(fitness_sum);
       // reset the sum for the next individual
       fitness_sum = 0;
+      
+      // add to uniques hash -- INCOMPLETE ***
+      
    } 
 }
 

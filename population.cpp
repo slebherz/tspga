@@ -21,7 +21,8 @@ using namespace std;
 Population::Population(string initial_paths_file, string tsp_data_file,
                        int size, double elitism) {
 
-   string line;
+   int city;
+   double cost;
    vector<double> line_values;
    set<int> city_pair;
 
@@ -33,16 +34,16 @@ Population::Population(string initial_paths_file, string tsp_data_file,
    cost_file.open(tsp_data_file.c_str());
 
    // throw away the first line (number of cities)
-   cost_file >> line;
+   cost_file >> city;
 
    // populate the cost table with key/value pairs of (citypair, travel_cost)
-   while( !cost_file.eof() )
+   while( cost_file >> city )
    {
-      cost_file >> line;
-      line_values = double_explode(" ", line);
-      city_pair.insert( (int)line_values[0] );
-      city_pair.insert( (int)line_values[1] );
-      this->cost_table[city_pair] = line_values[2];
+      city_pair.insert(city);
+      cost_file >> city;
+      city_pair.insert(city);
+      cost_file >> cost;
+      this->cost_table[city_pair] = cost;
       city_pair.clear();
    }
    cost_file.close();

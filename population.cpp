@@ -48,7 +48,8 @@ Population::Population(string initial_paths_file, string tsp_data_file,
 
 Individual Population::Fittest() {
    // return the most fit individual in the population
-   
+   sort(this->current_individuals.begin(), this->current_individuals.end());
+   return this->current_individuals.back();
 }
 
 void Population::Reproduce() {
@@ -196,19 +197,35 @@ void Population::Mutation() {
 void Population::Merge() {
 
    vector<Individual> next_individuals;
+   vector<Individual> unused_individuals;
    // pick the best <elitism>% members of old population
-   int i, elite_count = (int)(elitism * size);
+   int i, elite_count = (int)floor((elitism * size) + 0.5);
 
-  sort(this->current_individuals.begin(), this->current_individuals.end());
+   sort(this->current_individuals.begin(), this->current_individuals.end());
 
    for(i = 0; i < elite_count; i++) {
       next_individuals.push_back(this->current_individuals.back());
       this->current_individuals.pop_back();
    }
 
-   // fill remaining slots with the best of old and new populations
-   
-   // [size - size * <1 - elitism>] individuals
+   // pool old and new populations and sort
+   unused_individuals.insert(unused_individuals.end(),
+                             this->new_individuals.begin(),
+                             this->new_individuals.end());
+   unused_individuals.insert(unused_individuals.end(),
+                             this->current_individuals.begin(),
+                             this->current_individuals.end());
+
+   sort(unused_individuals.begin(), unused_individuals.end());
+
+   //  fill remaining slots with the best of old and new populations
+   int non_elite_count = size - elite_count;
+   for(i = 0; i < non_elite_count; i++) {
+      next_individuals.push_back(unused_individuals.back());
+      this->unused_individuals.pop_back();
+   }
+
+   this->current_individuals = next_individuals;
 }
 
 void Population::Genesis() {
@@ -228,11 +245,24 @@ void Population::Genesis() {
 }
 
 void Population::Evaluate() {
-   /*
-      for individual in new population
-         look at each adjacent city-pair in chromosome:
-            sum += cost(pair)
-   */
+   vector<int> temp_chromosome;
+   set<int> city_pair;
+   int i, j;
+   double fitness_sum = 0;
+
+   // for each indiviual in th enew population
+   for(i = 0; i < new_individuals.size(); i++) {
+      temp_chromosome = new_individuals[i].Chromosome();
+      // sum the cost for each adjacent city-pair in the indiviual's chromsome
+      for(j = 0; j < temp_chromosome.size() - 1; j++) {
+         city_pair.insert(temp_chromosome[j]);
+         city_pair.insert(temp_chromosome[j+1]);
+         fitness_sum += cost_table[city_pair];
+      }
+      new_individuals[i].Raw_Fitness(sum);
+      // reset the sum for the next individual
+      fitness_sum = 0;
+   } 
 }
 
 bool operator<(const Individual& lhs, const Individual& rhs) {

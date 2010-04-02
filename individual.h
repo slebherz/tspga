@@ -20,6 +20,7 @@ protected:
 public:
    Individual(vector<int> path);
    double Raw_Fitness();
+   void Raw_Fitness(double value);
    void Mutate();
    void Print();
    vector<int> Chromosome();

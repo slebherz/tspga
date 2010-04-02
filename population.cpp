@@ -11,6 +11,8 @@
 #include <fstream>
 #include <cmath>
 #include <algorithm>
+#include <assert.h>
+#include <list>
 #include "explode.h"
 
 using namespace std;
@@ -172,10 +174,105 @@ void Population::Breed() {
 }
 
 /*
-   Breed the pair to generate two children. Uses the 
+   Breed the pair to generate two children.
+   
+   Uses the Greedy Subtour Crossover approach.
+      INSERT REFERENCE TO GREEDY SUBTOUR CROSSOVER APPROACH!
 */
 void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
+   //vector<int> child;
+   list<int> child;
+   vector<int> child_vec;
+   list<int> cities_remaining;
+   vector<int>::iterator it;
+   list<int>::iterator itl;
+   int num_cities = parent_a.size();
+   int random_city, random_city_i, p_a_index, p_b_index;
+   bool get_from_a, get_from_b;
+   get_from_a = get_from_b = true;
 
+   // We'll update the remaining cities as we add them to the child.   
+   for(int i = 0; i < num_cities; i++) {
+      cities_remaining.push_back(i);
+   }
+   
+   // Choose the first city at random and add it to the child.
+   it = find( parent_a.begin(), parent_a.end(), ((rand() % num_cities) + 1));
+   assert(it != parent_a.end());
+   random_city = *it;
+   child.push_back(random_city);
+   
+   // Set indices for p_a_index, p_b_index to be the index of the first city.
+   for(unsigned int i = 0; i < parent_a.size(); i++) {
+      if(parent_a[i] == random_city) {
+         p_a_index = i;
+      }
+      if(parent_b[i] == random_city) {
+         p_b_index = i;
+      }
+   }
+   
+   /* 
+      Until both of the parents have a collision:
+         1) Grab a city from parent a, working backwards
+         2) Grab a city from parent b, working forwards
+      
+      A collision is when the city we'd grab is already in the child.
+      
+      See the paper on Greedy Subtour Crossover for a better
+      explanation of what is going on.
+   */
+   while(get_from_a || get_from_b) {
+      
+      if(get_from_a) {
+         p_a_index--; // working backwards...
+         
+         // Check whether the city is already present in the child.
+         itl = find(child.begin(), child.end(), parent_a[p_a_index]);
+         if(itl == child.end()) { // then the city is not yet in the child.
+            
+            child.push_front(parent_a[p_a_index]); // Add to front!
+            cities_remaining.remove(parent_a[p_a_index]);
+         }
+         else {
+            get_from_a = false;
+         }
+      }
+      
+      if(get_from_b) {
+         p_b_index++; // working forwards...
+
+         // Check whether the city is already present in the child.         
+         itl = find(child.begin(), child.end(), parent_b[p_b_index]);
+         if(itl == child.end()) { // then the city is not yet in the child.
+            
+            child.push_back(parent_b[p_b_index]); // Add to end!
+            cities_remaining.remove(parent_b[p_b_index]);
+         }
+         else {
+            get_from_b = false;
+         }
+      }
+   }
+   
+   // Add the remaining cities to the child at random.
+   while(cities_remaining.size() > 0) {
+      random_city_i = rand() % cities_remaining.size();
+      
+      itl = cities_remaining.begin();
+      for(int i = 0; i < random_city_i; i++) {
+         itl++;
+      }
+      child.push_back(*itl);
+      cities_remaining.remove(*itl);
+   }
+   
+   // add child to new_individuals
+   for(itl = child.begin(); itl != child.end(); itl++) {
+      child_vec.push_back(*itl);
+   }
+   Individual new_individual (child_vec);
+   this->new_individuals.push_back(new_individual);
 }
 
 /*

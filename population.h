@@ -21,6 +21,7 @@ private:
    // hash for cost table: maps set<int> to double (city pairs to distance)
    map< set<int>, double > cost_table;
    // hash for uniques    (maps vector<int> to int)
+   set< vector<int> > unique_paths;
 
    unsigned int size;
    double elitism;

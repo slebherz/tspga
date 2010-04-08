@@ -18,12 +18,12 @@
 
 using namespace std;
 
-#define EPSILON              5              /* SETTING */
-#define BEST_PATH            482             /* SETTING */
+#define EPSILON              2               /* SETTING - a percent */
+#define BEST_PATH            554             /* SETTING */
 #define MAX_ITERATIONS       1000            /* SETTING */
-#define POP_SIZE             9             /* size of popultion. this is the number of paths that Genesis will read in */
-#define ELITISM              0.10            /* percent of pop to preserve */
-#define MUTATION_RATE        0.10            /* chance a new ind will mutate */
+#define POP_SIZE             10               /* size of popultion. this is the number of paths that Genesis will read in */
+#define ELITISM              0.20            /* percent of pop to preserve */
+#define MUTATION_RATE        0.20            /* chance a new ind will mutate */
 #define INITIAL_PATHS_FNAME  "initial.dat"   /* SETTING */
 #define TSP_DATA_FNAME       "tsp.dat"       /* SETTING */
 
@@ -52,21 +52,17 @@ int main() {
    */
 
    while(!terminate(num_iterations, tsp_pop.Fittest().Raw_Fitness())) {
-      
-      cout << "Calling Reproduce()" << endl;
       tsp_pop.Reproduce();
-      
-      
-      
-      /*
-      cout << "Calling Evaluate()" << endl;
       tsp_pop.Evaluate();
-      cout << "Calling Merge()" << endl;
       tsp_pop.Merge();
-      */
+      
       num_iterations++;
-      if(num_iterations % 10 == 0)
+      if(num_iterations % 10 == 0) {
          cout << "Generation: " << num_iterations << endl;
+         printf("%.1f\n", tsp_pop.Avg_Fitness());
+         tsp_pop.Fittest().Print();
+         cout << endl << endl;
+      }
    }
 
    cout << "Total Generations: " << num_iterations << endl;
@@ -84,7 +80,7 @@ bool terminate(int num_iterations, double highest_fitness) {
    if(num_iterations == MAX_ITERATIONS)
       return true;
    
-   if((highest_fitness - BEST_PATH) <= EPSILON)
+   if((highest_fitness - BEST_PATH) <= ((double)EPSILON / 100.0) * BEST_PATH)
       return true;
    
    return false;

@@ -31,6 +31,7 @@ private:
 public:
    Population(string initial_paths_file, string tsp_data_file, int size, 
               double elitism);
+   double Avg_Fitness();
    Individual Fittest();
    void Reproduce();
    void Selection();

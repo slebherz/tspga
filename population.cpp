@@ -51,6 +51,17 @@ Population::Population(string initial_paths_file, string tsp_data_file,
    cost_file.close();
 }
 
+double Population::Avg_Fitness() {
+   double total_fitness = 0;
+   vector<Individual>::iterator it;
+   
+   // Calculate total fitness of the population.
+   for(it = this->current_individuals.begin(); it != this->current_individuals.end(); it++) {
+      total_fitness += (*it).Raw_Fitness();
+   }   
+   return total_fitness / (double) this->current_individuals.size();
+}
+
 Individual Population::Fittest() {
    
    // return the most fit individual in the population
@@ -59,9 +70,7 @@ Individual Population::Fittest() {
 }
 
 void Population::Reproduce() {
-   cout << "\tCalling Selection()" << endl;
    this->Selection();
-   cout << "\tCalling Breed()" << endl;
    this->Breed();
 }
 
@@ -149,39 +158,48 @@ void Population::Breed() {
    vector< vector< vector<int> > >::iterator it;
    vector<Individual>::iterator it2;
    
-   cout << "# new individuals: " << this->new_individuals.size() << endl;
-   
    while(this->new_individuals.size() < this->size) {
-      
-      cout << "\t\tCrossover loop" << endl;
       
       // 1) Crossover
       for(it = this->breeders.begin(); it != this->breeders.end(); it++) {
          this->Crossover((*it)[0], (*it)[1]);
       }
       
-      cout << "\t\tMutation()" << endl;
-      
       // 2) Mutation
       this->Mutation();
 
-      cout << "\t\tFilter loop" << endl;
-
+      /*
+      cout << "\t\tFilter loop" << endl; // ***
+      cout << this->unique_paths.size() << " uniques" << endl; // ***
+      cout << this->new_individuals.size() << " new individuals" << endl; // ***
+      */
+      
       /*
          3) Filter repeats: avoid wasting resources by filtering 
             out those new individuals that have already been evaluated
             in some prior generation.
       */
+      
+      /*
       for(it2 = this->new_individuals.begin(); it2 != this->new_individuals.end(); it2++) {
       
          // if this chromosome has never been seen before, add it to the list
          // and evaluate it
-         if(this->unique_paths.find(it2->Chromosome()) == this->unique_paths.end()) {
+         if(this->unique_paths.find(it2->Chromosome()) == this->unique_paths.end()) { // unique
+            cout << "INSERT!" << endl;
             this->unique_paths.insert(it2->Chromosome());
-         } else {
+         } 
+         else { // not unique
+            cout << "REPEAT!" << endl;
+            (*it2).Print();
             this->new_individuals.erase(it2);
          }
       }
+      cout << "\t\tDone Filter loop" << endl;
+      cout << this->unique_paths.size() << " uniques" << endl; // ***
+      cout << this->new_individuals.size() << " new individuals" << endl; // ***
+      */
+      
    }
    this->breeders.clear();
 }
@@ -193,7 +211,6 @@ void Population::Breed() {
       INSERT REFERENCE TO GREEDY SUBTOUR CROSSOVER APPROACH!
 */
 void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
-   //vector<int> child;
    list<int> child;
    vector<int> child_vec;
    list<int> cities_remaining;
@@ -204,16 +221,41 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
    bool get_from_a, get_from_b;
    get_from_a = get_from_b = true;
 
+
+   // ***
+   /*
+   Individual par_a (parent_a);
+   Individual par_b (parent_b);
+   cout << endl << "Breeding Parents:" << endl;
+   par_a.Print();
+   par_b.Print();
+   cout << endl;
+   */
+   // ***
+
+
    // We'll update the remaining cities as we add them to the child.   
-   for(int i = 0; i < num_cities; i++) {
+   for(int i = 1; i <= num_cities; i++) {
       cities_remaining.push_back(i);
    }
    
    // Choose the first city at random and add it to the child.
-   it = find( parent_a.begin(), parent_a.end(), ((rand() % num_cities) + 1));
-   assert(it != parent_a.end());
+   random_city = ((rand() % num_cities) + 1);
+   it = find( parent_a.begin(), parent_a.end(), random_city);
+   
+   // verbose assertion here...
+   if(it == parent_a.end()) { // no such city
+      Individual par_a (parent_a);
+      par_a.Print();
+      cout << "Couldn't find city: " << random_city << endl;
+      cout << "Will seg fault now..." << endl;
+   }
+   
    random_city = *it;
    child.push_back(random_city);
+   cities_remaining.remove(random_city);
+   
+   //cout << "first city: " << random_city << endl; // ***
    
    // Set indices for p_a_index, p_b_index to be the index of the first city.
    for(unsigned int i = 0; i < parent_a.size(); i++) {
@@ -224,6 +266,8 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
          p_b_index = i;
       }
    }
+   
+   //cout << "p_a, p_b indices:" << p_a_index << ", " << p_b_index << endl << endl; // ***
    
    /* 
       Until both of the parents have a collision:
@@ -239,31 +283,42 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
       
       if(get_from_a) {
          p_a_index--; // working backwards...
-         
-         // Check whether the city is already present in the child.
-         itl = find(child.begin(), child.end(), parent_a[p_a_index]);
-         if(itl == child.end()) { // then the city is not yet in the child.
-            
-            child.push_front(parent_a[p_a_index]); // Add to front!
-            cities_remaining.remove(parent_a[p_a_index]);
-         }
-         else {
+      
+         if(p_a_index < 0 || p_a_index > num_cities - 1) { // then we're out of bounds
             get_from_a = false;
+         }
+         else {      
+            // Check whether the city is already present in the child.
+            itl = find(child.begin(), child.end(), parent_a[p_a_index]);
+            if(itl == child.end()) { // then the city is not yet in the child.
+               
+               child.push_front(parent_a[p_a_index]); // Add to front!
+               cities_remaining.remove(parent_a[p_a_index]);
+            }
+            else {
+               get_from_a = false;
+            }
          }
       }
       
       if(get_from_b) {
          p_b_index++; // working forwards...
 
-         // Check whether the city is already present in the child.         
-         itl = find(child.begin(), child.end(), parent_b[p_b_index]);
-         if(itl == child.end()) { // then the city is not yet in the child.
-            
-            child.push_back(parent_b[p_b_index]); // Add to end!
-            cities_remaining.remove(parent_b[p_b_index]);
+         if(p_b_index < 0 || p_b_index > num_cities - 1) { // then we're out of bounds
+            get_from_b = false;
          }
          else {
-            get_from_b = false;
+
+            // Check whether the city is already present in the child.         
+            itl = find(child.begin(), child.end(), parent_b[p_b_index]);
+            if(itl == child.end()) { // then the city is not yet in the child.
+               
+               child.push_back(parent_b[p_b_index]); // Add to end!
+               cities_remaining.remove(parent_b[p_b_index]);
+            }
+            else {
+               get_from_b = false;
+            }
          }
       }
    }
@@ -284,7 +339,19 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
    for(itl = child.begin(); itl != child.end(); itl++) {
       child_vec.push_back(*itl);
    }
+   
    Individual new_individual (child_vec);
+   
+   
+   // ***
+   /*
+   cout << "Child:" << endl;
+   new_individual.Print();
+   cout << "--------------------" << endl;
+   */
+   // ***
+   
+   
    this->new_individuals.push_back(new_individual);
 }
 

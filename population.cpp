@@ -17,10 +17,8 @@
 
 using namespace std;
 
-/* INCOMPLETE - add MUTATION_RATE */
 Population::Population(string initial_paths_file, string tsp_data_file,
-                       int size, double elitism) {
-
+                       int size, double elitism, double mutation_rate) {
    int city;
    double cost;
    vector<double> line_values;
@@ -30,17 +28,15 @@ Population::Population(string initial_paths_file, string tsp_data_file,
    this->size = size;
    this->initial_paths_file = initial_paths_file;
    this->tsp_data_file = tsp_data_file;
+   this->mutation_rate = mutation_rate;
 
-   // Load the cost table
+   // Load the cost table and throw away the first line (# of cities)
    ifstream cost_file;
    cost_file.open(tsp_data_file.c_str());
-
-   // throw away the first line (number of cities)
    cost_file >> city;
 
    // populate the cost table with key/value pairs of (citypair, travel_cost)
-   while( cost_file >> city )
-   {
+   while( cost_file >> city ) {
       city_pair.insert(city);
       cost_file >> city;
       city_pair.insert(city);
@@ -164,42 +160,8 @@ void Population::Breed() {
       for(it = this->breeders.begin(); it != this->breeders.end(); it++) {
          this->Crossover((*it)[0], (*it)[1]);
       }
-      
-      // 2) Mutation
       this->Mutation();
-
-      /*
-      cout << "\t\tFilter loop" << endl; // ***
-      cout << this->unique_paths.size() << " uniques" << endl; // ***
-      cout << this->new_individuals.size() << " new individuals" << endl; // ***
-      */
-      
-      /*
-         3) Filter repeats: avoid wasting resources by filtering 
-            out those new individuals that have already been evaluated
-            in some prior generation.
-      */
-      
-      /*
-      for(it2 = this->new_individuals.begin(); it2 != this->new_individuals.end(); it2++) {
-      
-         // if this chromosome has never been seen before, add it to the list
-         // and evaluate it
-         if(this->unique_paths.find(it2->Chromosome()) == this->unique_paths.end()) { // unique
-            cout << "INSERT!" << endl;
-            this->unique_paths.insert(it2->Chromosome());
-         } 
-         else { // not unique
-            cout << "REPEAT!" << endl;
-            (*it2).Print();
-            this->new_individuals.erase(it2);
-         }
-      }
-      cout << "\t\tDone Filter loop" << endl;
-      cout << this->unique_paths.size() << " uniques" << endl; // ***
-      cout << this->new_individuals.size() << " new individuals" << endl; // ***
-      */
-      
+      this->Filter();
    }
    this->breeders.clear();
 }
@@ -220,19 +182,6 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
    int random_city, random_city_i, p_a_index, p_b_index;
    bool get_from_a, get_from_b;
    get_from_a = get_from_b = true;
-
-
-   // ***
-   /*
-   Individual par_a (parent_a);
-   Individual par_b (parent_b);
-   cout << endl << "Breeding Parents:" << endl;
-   par_a.Print();
-   par_b.Print();
-   cout << endl;
-   */
-   // ***
-
 
    // We'll update the remaining cities as we add them to the child.   
    for(int i = 1; i <= num_cities; i++) {
@@ -255,8 +204,6 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
    child.push_back(random_city);
    cities_remaining.remove(random_city);
    
-   //cout << "first city: " << random_city << endl; // ***
-   
    // Set indices for p_a_index, p_b_index to be the index of the first city.
    for(unsigned int i = 0; i < parent_a.size(); i++) {
       if(parent_a[i] == random_city) {
@@ -266,8 +213,6 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
          p_b_index = i;
       }
    }
-   
-   //cout << "p_a, p_b indices:" << p_a_index << ", " << p_b_index << endl << endl; // ***
    
    /* 
       Until both of the parents have a collision:
@@ -341,17 +286,6 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
    }
    
    Individual new_individual (child_vec);
-   
-   
-   // ***
-   /*
-   cout << "Child:" << endl;
-   new_individual.Print();
-   cout << "--------------------" << endl;
-   */
-   // ***
-   
-   
    this->new_individuals.push_back(new_individual);
 }
 
@@ -367,6 +301,32 @@ void Population::Mutation() {
       if(this->mutation_rate < mutation_chance)
          (*it).Mutate();
    }
+}
+
+/*
+   Filter repeats: avoid wasting resources by filtering 
+   out those new individuals that have already been evaluated
+   in some prior generation.
+*/
+void Population::Filter() {
+
+
+/* DEAD CODE - DELETE WHEN FINISHED - INCOMPLETE
+for(it2 = this->new_individuals.begin(); it2 != this->new_individuals.end(); it2++) {
+
+   // if this chromosome has never been seen before, add it to the list
+   // and evaluate it
+   if(this->unique_paths.find(it2->Chromosome()) == this->unique_paths.end()) { // unique
+      cout << "INSERT!" << endl;
+      this->unique_paths.insert(it2->Chromosome());
+   } 
+   else { // not unique
+      cout << "REPEAT!" << endl;
+      (*it2).Print();
+      this->new_individuals.erase(it2);
+   }
+}*/
+
 }
 
 /*
@@ -462,12 +422,14 @@ void Population::Evaluate() {
       // reset the sum for the next individual
       fitness_sum = 0;
       
-      // add to uniques hash -- INCOMPLETE ***
+      // add an entry in the uniques hash -- INCOMPLETE ***
       
    } 
 }
 
+/*
+   Used for algorithms that need to compare individuals.
+*/
 bool operator<(const Individual& lhs, const Individual& rhs) {
   return ((Individual)lhs).Raw_Fitness() < ((Individual)rhs).Raw_Fitness();
 }
-

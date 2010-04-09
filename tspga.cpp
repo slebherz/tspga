@@ -18,16 +18,17 @@
 
 using namespace std;
 
-#define EPSILON              2               /* SETTING - a percent */
-#define BEST_PATH            554             /* SETTING */
-#define MAX_ITERATIONS       1000            /* SETTING */
-#define POP_SIZE             10               /* size of popultion. this is the number of paths that Genesis will read in */
-#define ELITISM              0.20            /* percent of pop to preserve */
-#define MUTATION_RATE        0.20            /* chance a new ind will mutate */
-#define INITIAL_PATHS_FNAME  "initial.dat"   /* SETTING */
-#define TSP_DATA_FNAME       "tsp.dat"       /* SETTING */
+#define EPSILON              0               // a percent (of the best path)
+#define BEST_PATH            554             // brute force tsp solution
+#define MAX_ITERATIONS       1000            // stop evolve loop when reached
+#define POP_SIZE             100             // size of popultion. this is the number of paths that Genesis will read in
+#define ELITISM              0.20            // percent of pop to preserve
+#define MUTATION_RATE        0.20            // chance a new ind will mutate
+#define INITIAL_PATHS_FNAME  "initial.dat"   // paths for initial population
+#define TSP_DATA_FNAME       "tsp.dat"       // tsp loaded from here
 
 bool terminate(int num_iterations, double highest_fitness);
+void log(int num_iterations, Population* tsp_pop);
 
 int main() {
    int num_iterations = 0;
@@ -38,7 +39,7 @@ int main() {
          2) Genesis event occurs.
          3) Evaluate initial population
    */
-   Population tsp_pop(INITIAL_PATHS_FNAME, TSP_DATA_FNAME, POP_SIZE, ELITISM);
+   Population tsp_pop(INITIAL_PATHS_FNAME, TSP_DATA_FNAME, POP_SIZE, ELITISM, MUTATION_RATE);
    tsp_pop.Genesis();
    tsp_pop.Evaluate();
    tsp_pop.Merge(true);
@@ -58,16 +59,11 @@ int main() {
       
       num_iterations++;
       if(num_iterations % 10 == 0) {
-         cout << "Generation: " << num_iterations << endl;
-         printf("%.1f\n", tsp_pop.Avg_Fitness());
-         tsp_pop.Fittest().Print();
-         cout << endl << endl;
+         log(num_iterations, &tsp_pop);
       }
    }
-
-   cout << "Total Generations: " << num_iterations << endl;
-   tsp_pop.Fittest().Print();
-
+   
+   log(num_iterations, &tsp_pop);
    return 0;
 }
 
@@ -80,8 +76,21 @@ bool terminate(int num_iterations, double highest_fitness) {
    if(num_iterations == MAX_ITERATIONS)
       return true;
    
-   if((highest_fitness - BEST_PATH) <= ((double)EPSILON / 100.0) * BEST_PATH)
+   if((highest_fitness - BEST_PATH) <= (EPSILON * BEST_PATH))
       return true;
    
    return false;
+}
+
+/*
+   Displays:
+      Generation
+      Average Fitness
+      Best Individual
+*/
+void log(int num_iterations, Population* tsp_pop) {
+   cout << "Generation: " << num_iterations << endl;
+   printf("%.1f\n", tsp_pop->Avg_Fitness());
+   tsp_pop->Fittest().Print();
+   cout << endl << endl;
 }

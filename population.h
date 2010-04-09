@@ -30,7 +30,7 @@ private:
    string tsp_data_file;
 public:
    Population(string initial_paths_file, string tsp_data_file, int size, 
-              double elitism);
+              double elitism, double mutation_rate);
    double Avg_Fitness();
    Individual Fittest();
    void Reproduce();
@@ -38,6 +38,7 @@ public:
    void Breed();
    void Crossover(vector<int> parent_a, vector<int> parent_b);
    void Mutation();
+   void Filter();
    void Merge(bool init=false);
    void Genesis();
    void Evaluate();

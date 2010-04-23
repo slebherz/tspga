@@ -14,6 +14,7 @@
 #include <assert.h>
 #include <list>
 #include "explode.h"
+#include <omp.h>
 
 using namespace std;
 
@@ -151,14 +152,15 @@ void Population::Selection() {
       3) Filter repeats
 */
 void Population::Breed() {
-   vector< vector< vector<int> > >::iterator it;
-   vector<Individual>::iterator it2;
-   
+   int i, size;
+
    while(this->new_individuals.size() < this->size) {
       
       // 1) Crossover
-      for(it = this->breeders.begin(); it != this->breeders.end(); it++) {
-         this->Crossover((*it)[0], (*it)[1]);
+     size = this->breeders.size(); 
+     //#pragma omp parallel for private(i)
+     for(i = 0; i < size; i++) {
+         this->Crossover(this->breeders[i][0], this->breeders[i][1]);
       }
       this->Mutation();
       this->Filter();
@@ -170,7 +172,7 @@ void Population::Breed() {
    Breed the pair to generate a child.
    
    Uses the Greedy Subtour Crossover approach.
-      INSERT REFERENCE TO GREEDY SUBTOUR CROSSOVER APPROACH!
+   TODO: INSERT REFERENCE TO GREEDY SUBTOUR CROSSOVER APPROACH!
 */
 void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
    list<int> child;
@@ -190,15 +192,7 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
    
    // Choose the first city at random and add it to the child.
    random_city = ((rand() % num_cities) + 1);
-   it = find( parent_a.begin(), parent_a.end(), random_city);
-   
-   // verbose assertion here...
-   if(it == parent_a.end()) { // no such city
-      Individual par_a (parent_a);
-      par_a.Print();
-      cout << "Couldn't find city: " << random_city << endl;
-      cout << "Will seg fault now..." << endl;
-   }
+   it = std::find( parent_a.begin(), parent_a.end(), random_city);
    
    random_city = *it;
    child.push_back(random_city);
@@ -234,7 +228,7 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
          }
          else {      
             // Check whether the city is already present in the child.
-            itl = find(child.begin(), child.end(), parent_a[p_a_index]);
+	    itl = std::find(child.begin(), child.end(), parent_a[p_a_index]);
             if(itl == child.end()) { // then the city is not yet in the child.
                
                child.push_front(parent_a[p_a_index]); // Add to front!
@@ -255,7 +249,7 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
          else {
 
             // Check whether the city is already present in the child.         
-            itl = find(child.begin(), child.end(), parent_b[p_b_index]);
+	    itl = std::find(child.begin(), child.end(), parent_b[p_b_index]);
             if(itl == child.end()) { // then the city is not yet in the child.
                
                child.push_back(parent_b[p_b_index]); // Add to end!
@@ -409,12 +403,15 @@ void Population::Evaluate() {
    double fitness_sum = 0;
    
    // for each indiviual in the new population
+#pragma omp parallel for private(i, temp_chromosome, fitness_sum)
    for(i = 0; i < new_individuals.size(); i++) {
       temp_chromosome = new_individuals[i].Chromosome();
       // sum the cost for each adjacent city-pair in an indiviual's chromsome
+      #pragma omp parallel for private(j, city_pair)
       for(j = 0; j < temp_chromosome.size() - 1; j++) {
          city_pair.insert(temp_chromosome[j]);
          city_pair.insert(temp_chromosome[j+1]);
+         #pragma omp atomic
          fitness_sum += this->cost_table[city_pair];
          city_pair.clear();
       }

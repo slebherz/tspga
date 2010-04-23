@@ -13,6 +13,7 @@
 */
 
 #include <iostream>
+#include <cstdio>
 #include "population.h"
 #include "individual.h"
 

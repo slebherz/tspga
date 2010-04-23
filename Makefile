@@ -1,16 +1,16 @@
 all: tspga
 
-tspga: tspga.o population.o individual.o
-	g++ tspga.o population.o individual.o -o tspga
-   
-tspga.o: tspga.cpp
-	g++ -ansi -Wall -c tspga.cpp
+tspga: tspga.o population.o individual.o Makefile
+	g++ -fopenmp -march=native tspga.o population.o individual.o -o tspga
 
-population.o: population.cpp population.h
-	g++ -ansi -Wall -c population.cpp
+tspga.o: tspga.cpp Makefile
+	g++ -fopenmp -march=native -ansi -Wall -c tspga.cpp
 
-individual.o: individual.cpp individual.h
-	g++ -ansi -Wall -c individual.cpp
-   
+population.o: population.cpp population.h Makefile
+	g++ -fopenmp -march=native -ansi -Wall -c population.cpp
+
+individual.o: individual.cpp individual.h Makefile
+	g++ -fopenmp -march=native -ansi -Wall -c individual.cpp
+
 clean:
 	rm -rf *.o tspga

@@ -18,6 +18,10 @@
 
 using namespace std;
 
+/*
+Constructor: Population
+
+*/
 Population::Population(string initial_paths_file, string tsp_data_file,
                        int size, double elitism, double mutation_rate) {
    int city;
@@ -48,17 +52,28 @@ Population::Population(string initial_paths_file, string tsp_data_file,
    cost_file.close();
 }
 
+
+/*
+Function: Avg_Fitness
+
+*/
 double Population::Avg_Fitness() {
    double total_fitness = 0;
-   vector<Individual>::iterator it;
-   
+   unsigned int i;
+
    // Calculate total fitness of the population.
-   for(it = this->current_individuals.begin(); it != this->current_individuals.end(); it++) {
-      total_fitness += (*it).Raw_Fitness();
+   #pragma omp parallel for private(i) reduction(+: total_fitness) 
+   for(i = 0; i < this->current_individuals.size(); i++) {
+      total_fitness +=  this->current_individuals[i].Raw_Fitness();
    }   
    return total_fitness / (double) this->current_individuals.size();
 }
 
+
+/*
+Function: Fittest
+
+*/
 Individual Population::Fittest() {
    
    // return the most fit individual in the population
@@ -66,12 +81,20 @@ Individual Population::Fittest() {
    return this->current_individuals.front();
 }
 
+
+/*
+Function: Reproduce
+
+*/
 void Population::Reproduce() {
    this->Selection();
    this->Breed();
 }
 
+
 /*
+Function: Selection
+
    Pairs up individuals for breeding. The higher an individual's fitness
    the more likely it will be selected to breed.
 */
@@ -79,20 +102,20 @@ void Population::Selection() {
    unsigned int i=0, j, prev_ind_index;
    bool asexual;
    double total_pop_fitness = 0;
-   double prev_sum = 0;
    double breeding_chance, current_chance;
    vector<double> percent_contrib;
    vector< vector<int> > breed_pair;
    vector<Individual>::iterator it;
 
    // 1) Calculate total fitness of the population.
-   for(it = this->current_individuals.begin(); it != this->current_individuals.end(); it++) {
-      total_pop_fitness += (*it).Raw_Fitness();
+   #pragma omp parallel for private(i) reduction(+: total_pop_fitness) 
+   for(i = 0; i < this->current_individuals.size(); i++) {
+      total_pop_fitness += this->current_individuals[i].Raw_Fitness();
    }
    
    // 2) Build lookup table of percent contribution to total.
     for(it = this->current_individuals.begin(); it != this->current_individuals.end(); it++) {
-      percent_contrib.push_back(prev_sum + ((*it).Raw_Fitness() / total_pop_fitness));
+      percent_contrib.push_back((*it).Raw_Fitness() / total_pop_fitness);
    }
    /* 
       3) Make breeder pairs:
@@ -146,7 +169,10 @@ void Population::Selection() {
 }
 
 /*
-   Breeds a population of new individuals from the breeding pairs:
+Function: Breed
+
+   Breeds a population of new individuals from the breeding pairs.
+   Includes the following steps:
       1) Crossover
       2) Mutation
       3) Filter repeats
@@ -158,7 +184,7 @@ void Population::Breed() {
       
       // 1) Crossover
      size = this->breeders.size(); 
-     //#pragma omp parallel for private(i)
+     #pragma omp parallel for private(i)
      for(i = 0; i < size; i++) {
          this->Crossover(this->breeders[i][0], this->breeders[i][1]);
       }
@@ -169,6 +195,8 @@ void Population::Breed() {
 }
 
 /*
+Function: Crossover
+
    Breed the pair to generate a child.
    
    Uses the Greedy Subtour Crossover approach.
@@ -279,8 +307,11 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
       child_vec.push_back(*itl);
    }
    
-   Individual new_individual (child_vec);
-   this->new_individuals.push_back(new_individual);
+   #pragma omp critical 
+   {
+      Individual new_individual (child_vec);
+      this->new_individuals.push_back(new_individual);
+   }
 }
 
 /*
@@ -407,11 +438,10 @@ void Population::Evaluate() {
    for(i = 0; i < new_individuals.size(); i++) {
       temp_chromosome = new_individuals[i].Chromosome();
       // sum the cost for each adjacent city-pair in an indiviual's chromsome
-      #pragma omp parallel for private(j, city_pair)
+      #pragma omp parallel for private(j, city_pair) reduction(+: fitness_sum)
       for(j = 0; j < temp_chromosome.size() - 1; j++) {
          city_pair.insert(temp_chromosome[j]);
          city_pair.insert(temp_chromosome[j+1]);
-         #pragma omp atomic
          fitness_sum += this->cost_table[city_pair];
          city_pair.clear();
       }

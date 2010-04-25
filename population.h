@@ -18,10 +18,12 @@ private:
    vector<Individual> new_individuals;
    vector< vector< vector<int> > > breeders;
    
-   // hash for cost table: maps set<int> to double (city pairs to distance)
+   // Maps a city pair to a distance.
    map< set<int>, double > cost_table;
-   // hash for uniques    (maps vector<int> to int)
-   set< vector<int> > unique_paths;
+   
+   // Ensures we can quickly check for uniqueness; 
+   // the mapped value is actually never used.
+   map< vector<int>, int > uniques; 
 
    unsigned int size;
    double elitism;

@@ -180,14 +180,15 @@ Function: Breed
 void Population::Breed() {
    int i, size;
 
-   while(this->new_individuals.size() < this->size) {
-      
+   while(this->new_individuals.size() < this->size) {  
+     
       // 1) Crossover
-     size = this->breeders.size(); 
-     #pragma omp parallel for private(i)
-     for(i = 0; i < size; i++) {
+      size = this->breeders.size(); 
+      #pragma omp parallel for private(i)
+      for(i = 0; i < size; i++) {
          this->Crossover(this->breeders[i][0], this->breeders[i][1]);
       }
+       // 2) and 3)
       this->Mutation();
       this->Filter();
    }
@@ -334,24 +335,20 @@ void Population::Mutation() {
    in some prior generation.
 */
 void Population::Filter() {
-
-
-/* DEAD CODE - DELETE WHEN FINISHED - INCOMPLETE
-for(it2 = this->new_individuals.begin(); it2 != this->new_individuals.end(); it2++) {
-
-   // if this chromosome has never been seen before, add it to the list
-   // and evaluate it
-   if(this->unique_paths.find(it2->Chromosome()) == this->unique_paths.end()) { // unique
-      cout << "INSERT!" << endl;
-      this->unique_paths.insert(it2->Chromosome());
-   } 
-   else { // not unique
-      cout << "REPEAT!" << endl;
-      (*it2).Print();
-      this->new_individuals.erase(it2);
+   vector<Individual>::iterator iter;
+   iter = this->new_individuals.begin();
+   
+   while(iter != this->new_individuals.end()) {
+      if(this->uniques.find(iter->Chromosome()) != this->uniques.end()) { // repeat!   
+         
+         // Do the erase, keep the new, valid, already incremented (by erase!) iterator
+         iter = this->new_individuals.erase(iter);
+      }
+      else {
+         // manually increment our iterator
+         iter++;
+      }
    }
-}*/
-
 }
 
 /*
@@ -449,8 +446,11 @@ void Population::Evaluate() {
       // reset the sum for the next individual
       fitness_sum = 0;
       
-      // add an entry in the uniques hash -- INCOMPLETE ***
-      
+      // add an entry in the uniques hash
+      #pragma omp critical 
+      {
+      uniques[new_individuals[i].Chromosome()] = 1;
+      }
    } 
 }
 

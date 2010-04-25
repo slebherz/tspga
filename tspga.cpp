@@ -21,7 +21,7 @@ using namespace std;
 
 #define EPSILON              0               // A percent (of the best path)
 #define BEST_PATH            554             // Brute force tsp solution
-#define MAX_ITERATIONS       1000            // Stop evolve loop when reached
+#define MAX_ITERATIONS       100000          // Stop evolve loop when reached
 #define MAX_STALE            100             // Max consecutive iterations
                                              //    allowed without improvement
 #define POP_SIZE             100             // Size of popultion. this is the 
@@ -97,8 +97,8 @@ bool terminate(int num_iterations, double highest_fitness, int stale_iterations)
    if((highest_fitness - BEST_PATH) <= (EPSILON * BEST_PATH))
       return true;
 
-   if(stale_iterations == MAX_STALE)
-      return true;
+   //if(stale_iterations == MAX_STALE)
+   //   return true;
    
    return false;
 }

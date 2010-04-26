@@ -14,21 +14,23 @@
 
 #include <iostream>
 #include <cstdio>
+#include <time.h>
+#include <sys/time.h>
 #include "population.h"
 #include "individual.h"
 
 using namespace std;
 
 #define EPSILON              0               // A percent (of the best path)
-#define BEST_PATH            554             // Brute force tsp solution
+#define BEST_PATH            847             // Brute force tsp solution
 #define MAX_ITERATIONS       100000          // Stop evolve loop when reached
-#define MAX_STALE            100             // Max consecutive iterations
+#define MAX_STALE            1000             // Max consecutive iterations
                                              //    allowed without improvement
 #define POP_SIZE             100             // Size of popultion. this is the 
                                              //    number of paths that Genesis
                                              //    will read in
 #define ELITISM              0.20            // Percent of pop to preserve
-#define MUTATION_RATE        0.20            // Chance a new indiv will mutate
+#define MUTATION_RATE        0.30            // Chance a new indiv will mutate
 #define INITIAL_PATHS_FNAME  "initial.dat"   // Paths for initial population
 #define TSP_DATA_FNAME       "tsp.dat"       // TSP loaded from here
 
@@ -36,10 +38,16 @@ bool terminate(int num_iterations, double highest_fitness, int stale_iterations)
 void log(int num_iterations, Population* tsp_pop);
 
 int main() {
+   struct timeval systime;
+	double t1, t2, total_time;
    int num_iterations = 0;
    int last_fitness = 0;
    int stale_iterations = 0;
 
+   /* Start Timer */
+   gettimeofday(&systime,NULL);
+	t1 = systime.tv_sec + (systime.tv_usec/1000000.0);
+   
    /*
       Setup for evolution loop:
          1) Construct a new population.
@@ -68,11 +76,11 @@ int main() {
 
       // if there was no improvement of the max, increase stale_iterations
       if(tsp_pop.Fittest().Raw_Fitness() == last_fitness) {
-	stale_iterations++;
+         stale_iterations++;
       }
       else {
-	stale_iterations = 0;
-	last_fitness = tsp_pop.Fittest().Raw_Fitness();
+         stale_iterations = 0;
+         last_fitness = tsp_pop.Fittest().Raw_Fitness();
       }
 
       // output stats every 10 generations
@@ -80,6 +88,21 @@ int main() {
          log(num_iterations, &tsp_pop);
       }
    }
+  
+   /* End Timer */
+   gettimeofday(&systime,NULL);
+   t2 = systime.tv_sec + (systime.tv_usec/1000000.0);
+   total_time = t2-t1;
+   
+   // Did we find the optimal path?
+   if(tsp_pop.Fittest().Raw_Fitness() == BEST_PATH) {
+      cout << "Optimal path found!" << endl;
+   }
+   else {
+      cout << "Optimal path NOT found!" << endl;
+   }
+   
+   printf("GA Time: %.1lf (seconds)\n", total_time);
    
    log(num_iterations, &tsp_pop);
    return 0;
@@ -97,8 +120,8 @@ bool terminate(int num_iterations, double highest_fitness, int stale_iterations)
    if((highest_fitness - BEST_PATH) <= (EPSILON * BEST_PATH))
       return true;
 
-   //if(stale_iterations == MAX_STALE)
-   //   return true;
+   if(stale_iterations == MAX_STALE)
+      return true;
    
    return false;
 }

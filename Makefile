@@ -13,4 +13,4 @@ individual.o: individual.cpp individual.h Makefile
 	g++ -fopenmp -march=native -ansi -Wall -c individual.cpp
 
 clean:
-	rm -rf *.o tspga
+	rm -rf *.o tspga Otsp* tsp.mas tsp.pul tsp.sol tsp.sav

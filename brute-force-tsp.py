@@ -22,7 +22,7 @@ def imerge(a, b):
 # Evaluate a path: Sum the cost of all consecutive pairings
 def Evaluate(path, cost_table):
    edges = (tuple(path[i-2:i]) for i in range(2, len(path)+1))
-   return sum(cost_table[edge] for edge in edges)
+   return sum(cost_table[edge] for edge in edges) + cost_table[(path[0], path[-1])]
             
 def main():
    global data_fname
@@ -43,13 +43,19 @@ def main():
 
    # Generate all possible paths.
    num_cities = int(lines[0][0])
-   paths = itertools.permutations(range(1,num_cities+1), num_cities)
+   paths = itertools.permutations(range(0,num_cities), num_cities)
    
    print "Data loaded from " + data_fname
    print "Solving a " + str(num_cities) + " city TSP."
    
+   min_cost = 10000000000000
    # Evaluate all possible paths.
-   print "Minimum Path Cost: ", min(Evaluate(path, cost_table) for path in paths)
-   
+   for path in paths:
+      path_cost = Evaluate(path, cost_table)
+      if min_cost > path_cost:
+         best_path = path
+         min_cost = path_cost
+   print "Minimum Path Cost: " + str(min_cost)
+   print best_path
 if __name__ == "__main__":
    main()

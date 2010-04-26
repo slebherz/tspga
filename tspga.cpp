@@ -26,7 +26,7 @@ using namespace std;
 #define MAX_ITERATIONS       100000          // Stop evolve loop when reached
 #define MAX_STALE            1000             // Max consecutive iterations
                                              //    allowed without improvement
-#define POP_SIZE             100             // Size of popultion. this is the 
+#define POP_SIZE             200             // Size of popultion. this is the 
                                              //    number of paths that Genesis
                                              //    will read in
 #define ELITISM              0.20            // Percent of pop to preserve
@@ -38,13 +38,17 @@ bool terminate(int num_iterations, double highest_fitness, int stale_iterations)
 void log(int num_iterations, Population* tsp_pop);
 
 int main() {
-   struct timeval systime;
-	double t1, t2, total_time;
+   // Timing stuff
+   struct timeval systime, systime2;
+	double t1, t2, t3, t4, total_time, total_iter_time;
+   total_iter_time = 0;
+   
+   // GA stuff
    int num_iterations = 0;
    int last_fitness = 0;
    int stale_iterations = 0;
-
-   /* Start Timer */
+   
+   /* Start GA Timer */
    gettimeofday(&systime,NULL);
 	t1 = systime.tv_sec + (systime.tv_usec/1000000.0);
    
@@ -68,9 +72,18 @@ int main() {
    */
 
    while(!terminate(num_iterations, tsp_pop.Fittest().Raw_Fitness(), stale_iterations)) {
+      // Start Iteration Timer
+      gettimeofday(&systime2,NULL);
+	   t3 = systime2.tv_sec + (systime2.tv_usec/1000000.0);
+      
       tsp_pop.Reproduce();
       tsp_pop.Evaluate();
       tsp_pop.Merge();
+      
+      // End Iteration Timer
+      gettimeofday(&systime2,NULL);
+	   t4 = systime2.tv_sec + (systime2.tv_usec/1000000.0);
+      total_iter_time += (t4 - t3);
       
       num_iterations++;
 
@@ -89,7 +102,7 @@ int main() {
       }
    }
   
-   /* End Timer */
+   /* End GA Timer */
    gettimeofday(&systime,NULL);
    t2 = systime.tv_sec + (systime.tv_usec/1000000.0);
    total_time = t2-t1;
@@ -103,7 +116,7 @@ int main() {
    }
    
    printf("GA Time: %.1lf (seconds)\n", total_time);
-   
+   printf("Avg Iteration Time: %.4lf (seconds)\n", total_iter_time/(double)num_iterations);
    log(num_iterations, &tsp_pop);
    return 0;
 }
@@ -130,7 +143,7 @@ bool terminate(int num_iterations, double highest_fitness, int stale_iterations)
    Displays:
       Generation
       Average Fitness
-      Best Individual
+      Fittest Individual
 */
 void log(int num_iterations, Population* tsp_pop) {
    cout << "Generation: " << num_iterations << endl;

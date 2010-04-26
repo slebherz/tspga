@@ -1,0 +1,43 @@
+**The python scripts require Python 2.6**
+
+
+To Run the GA:
+
+1) Generate a tsp: 
+      python tsp-builder.py <# cities> <min cost> <max cost>
+
+2) Find the optimal solution (look for it in concorde's output):
+      ./concorde tsp.tsp
+
+3) Load the optimal solution into the tspga.cpp setting:
+      #define BEST_PATH <optimal solution>
+
+4) Change any other desired settings in tspga.cpp #defines (mutation rate, 
+   population size, elitism %, etc...)
+      
+5) Rebuild the GA:
+      make
+
+6) Generate initial paths for the GA (make sure the # of paths equals 
+   the population size!):
+      python tsp-initial-paths.py <# cities> <# of paths to generate>
+
+7) Control the parallelism by setting the number of OpenMP threads:
+      export OMP_NUM_THREADS=<# threads>
+
+8) Run the GA:
+      ./tspga
+
+
+Shortcuts:
+
+To re-run the GA: use step 8
+
+To re-run the GA with a different number of threads: use steps 7, 8
+
+To re-run the GA with different GA settings: use steps 4, 5, 8
+   **If you change the population size: use steps 4, 5, 6, 8
+
+To re-run the GA with a different seed population: use steps 6, 8
+
+To re-run the GA on a new TSP: redo all the steps

@@ -96,10 +96,10 @@ int main() {
    
    // Did we find the optimal path?
    if(tsp_pop.Fittest().Raw_Fitness() == BEST_PATH) {
-      cout << "Optimal path found!" << endl;
+      cout << "Optimal path (" << BEST_PATH << ") found!" << endl;
    }
    else {
-      cout << "Optimal path NOT found!" << endl;
+      cout << "Optimal path (" << BEST_PATH << ") NOT found!" << endl;
    }
    
    printf("GA Time: %.1lf (seconds)\n", total_time);
@@ -134,7 +134,8 @@ bool terminate(int num_iterations, double highest_fitness, int stale_iterations)
 */
 void log(int num_iterations, Population* tsp_pop) {
    cout << "Generation: " << num_iterations << endl;
-   printf("%.1f\n", tsp_pop->Avg_Fitness());
+   printf("Average Fitness: %.1f\n", tsp_pop->Avg_Fitness());
+   cout << "Fittest Individual:" << endl;
    tsp_pop->Fittest().Print();
    cout << endl << endl;
 }

@@ -1,4 +1,9 @@
 /*
+   File: individual.cpp
+   Authors: Sam Lebherz (slebher1), Andrew Sillers (andsil1)
+   TSP Genetic Algorithm
+   CMSC 491, Spring 2010
+   
    Individual Class - Maintains an individual which represents a
                       path in the TSP.
 */

@@ -1,4 +1,9 @@
 /*
+   File: population.cpp
+   Authors: Sam Lebherz (slebher1), Andrew Sillers (andsil1)
+   TSP Genetic Algorithm
+   CMSC 491, Spring 2010
+   
    Population Class - Maintains a population of individuals, each
                       representing a possible solution to a TSP.
 */
@@ -200,8 +205,11 @@ Function: Crossover
 
    Breed the pair to generate a child.
    
-   Uses the Greedy Subtour Crossover approach.
-   TODO: INSERT REFERENCE TO GREEDY SUBTOUR CROSSOVER APPROACH!
+   Uses the Greedy Subtour Crossover approach, developed by Sengoku
+   and Yoshihara:
+      Sengoku H., Yoshihara I., A Fast TSP Solver Using GA on JAVA, 
+      Proc. of the 3rd AROB, 1998, pp. 283-288.
+   
 */
 void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
 

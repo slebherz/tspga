@@ -1,3 +1,7 @@
+# File: Makefile
+# Authors: Sam Lebherz (slebher1), Andrew Sillers (andsil1)
+# TSP Genetic Algorithm
+# CMSC 491, Spring 2010
 all: tspga
 
 tspga: tspga.o population.o individual.o Makefile

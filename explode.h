@@ -1,8 +1,11 @@
 /*
-File: explode.h
+   File: explode.h
+   Authors: Sam Lebherz (slebher1), Andrew Sillers (andsil1)
+   TSP Genetic Algorithm
+   CMSC 491, Spring 2010
 
-Based on Zedwood's freely available explode function at
-http://www.zedwood.com/article/106/cpp-explode-function
+   Description: Based on Zedwood's freely available explode function at
+   http://www.zedwood.com/article/106/cpp-explode-function
 */
 
 #ifndef _EXPLODE_H_

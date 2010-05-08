@@ -1,8 +1,13 @@
 /*
+   File: tspga.cpp
+   Authors: Sam Lebherz (slebher1), Andrew Sillers (andsil1)
+   TSP Genetic Algorithm
+   CMSC 491, Spring 2010
+   
    Driver that constructs a Genetic Algorithm (GA) to 
    solve the Traveling Salesman Problem (TSP).
    
-   Essentially, here is what goes down:
+   The GA follows these high level steps:
    
       1) Construct a population.
       2) Genesis, initial evaluation.

@@ -1,5 +1,11 @@
-**The python scripts require Python 2.6**
+The quickstart guide contains the information required for getting started
+running the GA as well as information on modifying basic GA settings and
+information regarding how to enable real-time plotting. Important dependencies
+and gotchas are also listed.
 
+**The python scripts require Python 2.6**
+**The perl script responsible for real-time plotting may require the
+installation of a library***
 
 To Run the GA:
 
@@ -12,8 +18,10 @@ To Run the GA:
 3) Load the optimal solution into the tspga.cpp setting:
       #define BEST_PATH <optimal solution>
 
-4) Change any other desired settings in tspga.cpp #defines (mutation rate, 
-   population size, elitism %, etc...)
+4) Change any other desired settings in the tspga.cpp #defines 
+   ex: GA settings--mutation rate, population size, elitism %
+   ex: plotting output--set either of the #defines (PLOT_ITER, PLOT_FIT)
+       to true and the GA will output data for gnuplot (see step 8)
       
 5) Rebuild the GA:
       make
@@ -27,7 +35,15 @@ To Run the GA:
 
 8) Run the GA:
       ./tspga
-
+      
+      Or with real-time plotting: 
+      ./tspga | ./feedGnuplot.pl --stream
+      
+      Note: if using real-time plotting the program must be manually terminated
+      (ctrl-c) because gnuplot will wait indefinitely for streaming input.
+      
+      Note: real time plotting has not been tested on bluegrit.
+      
 
 Shortcuts:
 

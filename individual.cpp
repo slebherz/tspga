@@ -37,9 +37,9 @@ using namespace std;
    void Individual::Print() {
       for(vector<int>::iterator iter = this->chromosome.begin();
           iter != this->chromosome.end(); ++iter) {
-         cout << *iter << " ";
+          fprintf(stderr, "%d ", *iter);
       }
-      cout << endl;
-      cout << this->raw_fitness << endl;
+      fprintf(stderr, "\n");
+      fprintf(stderr, "%.0f\n", this->raw_fitness);
    }
 

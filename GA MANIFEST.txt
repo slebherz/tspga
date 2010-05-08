@@ -16,6 +16,8 @@ individual.cpp
 population.h    
 population.cpp       Defines a Population in the GA
 
+explode.h            Provides string parsing utilities
+
 #################################
    New TSP Generators
 tsp-builder.py       Generates a new TSP given the number of cities and desired cost range

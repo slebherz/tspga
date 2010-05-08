@@ -16,9 +16,6 @@ individual.cpp
 population.h    
 population.cpp       Defines a Population in the GA
 
-explode.h            Helper function for TSP input file parsing
-explode.cpp
-
 #################################
    New TSP Generators
 tsp-builder.py       Generates a new TSP given the number of cities and desired cost range
@@ -29,6 +26,5 @@ tsp-initial-paths.py Generates random paths given the number of cities in the TS
 initial.dat          Random initial paths that seed the GA
 
 #################################
-   Alternate TSP Solvers
-brute-force-tsp.py   Brute force TSP solver, useful for solving TSPs with less than 11 cities
+   Alternate TSP Solver
 concorde             High speed TSP solver, see: www.tsp.gatech.edu/concorde.html for more information

@@ -1,6 +1,10 @@
 """
-
-   Generate a set of random initial paths.
+   File: tsp-initial-paths.py
+   Authors: Sam Lebherz (slebher1), Andrew Sillers (andsil1)
+   TSP Genetic Algorithm
+   CMSC 491, Spring 2010
+   
+   Description: Generate a set of random initial paths.
    
    Usage: python tsp-initial-paths.py <# cities> <# of paths to generate>
 

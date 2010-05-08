@@ -1,10 +1,14 @@
 """
-
-   Generates a cost table for a tsp given:
+   File: tsp-initial-paths.py
+   Authors: Sam Lebherz (slebher1), Andrew Sillers (andsil1)
+   TSP Genetic Algorithm
+   CMSC 491, Spring 2010
+   
+   Description: Generates a cost table for a tsp given:
       a) number of cities in the tsp
       b) minimum desired cost
       c) maximum desired cost
-
+      
    Usage: python tsp-builder.py <# cities> <min cost> <max cost>
    
    The cost table is written to a file specified in this script.

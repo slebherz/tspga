@@ -1,4 +1,11 @@
 #!/usr/bin/perl -w
+
+#
+# Script from: http://github.com/dkogan/feedgnuplot
+#
+# License: This script is released into the public domain.
+#
+
 use strict;
 use Getopt::Long;
 use Time::HiRes qw( usleep gettimeofday tv_interval);

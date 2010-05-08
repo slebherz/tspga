@@ -59,11 +59,11 @@ Function: Avg_Fitness
 */
 double Population::Avg_Fitness() {
    double total_fitness = 0;
-   unsigned int i;
+   int i;
 
    // Calculate total fitness of the population.
    #pragma omp parallel for private(i) reduction(+: total_fitness) 
-   for(i = 0; i < this->current_individuals.size(); i++) {
+   for(i = 0; i < (int)this->current_individuals.size(); i++) {
       total_fitness +=  this->current_individuals[i].Raw_Fitness();
    }   
    return total_fitness / (double) this->current_individuals.size();
@@ -99,7 +99,7 @@ Function: Selection
    the more likely it will be selected to breed.
 */
 void Population::Selection() {
-   unsigned int i=0, j, prev_ind_index;
+   int i=0, j, prev_ind_index;
    bool asexual;
    double total_pop_fitness = 0;
    double breeding_chance, current_chance;
@@ -109,7 +109,7 @@ void Population::Selection() {
 
    // 1) Calculate total fitness of the population.
    #pragma omp parallel for private(i) reduction(+: total_pop_fitness) 
-   for(i = 0; i < this->current_individuals.size(); i++) {
+   for(i = 0; i < (int)this->current_individuals.size(); i++) {
       total_pop_fitness += this->current_individuals[i].Raw_Fitness();
    }
    
@@ -130,14 +130,14 @@ void Population::Selection() {
          (POP SIZE / 2). This is because each breeding pair should, 
          ideally, breed 2 children for a total of POP SIZE children.
    */   
-   while(this->breeders.size() < (this->size * 1.1)) { // 110% of pop size...
+   while(this->breeders.size() < (this->size * 1.5)) { // 110% of pop size...
       
       for(i = 0; i < 2; i++) { // Make a couple.
          current_chance = 0;
          breeding_chance = rand() / (double) (RAND_MAX + 1.0);
          
          // Find the lucky individual.
-         for(j = 0; j < percent_contrib.size(); j++) {
+         for(j = 0; j < (int)percent_contrib.size(); j++) {
             current_chance += percent_contrib[j];
             
             if(current_chance > breeding_chance) { // lucky individual found!
@@ -186,7 +186,7 @@ void Population::Breed() {
       size = this->breeders.size(); 
       #pragma omp parallel for private(i)
       for(i = 0; i < size; i++) {
-         this->Crossover(this->breeders[i][0], this->breeders[i][1]);
+	this->Crossover(this->breeders[i][0], this->breeders[i][1]);
       }
        // 2) and 3)
       this->Mutation();
@@ -204,29 +204,32 @@ Function: Crossover
    TODO: INSERT REFERENCE TO GREEDY SUBTOUR CROSSOVER APPROACH!
 */
 void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
+
    list<int> child;
    vector<int> child_vec;
    list<int> cities_remaining;
    vector<int>::iterator it;
    list<int>::iterator itl;
-   int num_cities = parent_a.size();
+   int num_cities;
    int random_city, random_city_i, p_a_index, p_b_index;
    bool get_from_a, get_from_b;
+
    get_from_a = get_from_b = true;
+   num_cities = parent_a.size();
 
    // We'll update the remaining cities as we add them to the child.   
    for(int i = 1; i <= num_cities; i++) {
       cities_remaining.push_back(i);
    }
-   
+
    // Choose the first city at random and add it to the child.
    random_city = ((rand() % num_cities) + 1);
-   it = std::find( parent_a.begin(), parent_a.end(), random_city);
+   it = find( parent_a.begin(), parent_a.end(), random_city);
    
    random_city = *it;
    child.push_back(random_city);
    cities_remaining.remove(random_city);
-   
+
    // Set indices for p_a_index, p_b_index to be the index of the first city.
    for(unsigned int i = 0; i < parent_a.size(); i++) {
       if(parent_a[i] == random_city) {
@@ -236,10 +239,11 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
          p_b_index = i;
       }
    }
-   
+
    /* 
       Until both of the parents have a collision:
          1) Grab a city from parent a, working backwards
+
          2) Grab a city from parent b, working forwards
       
       A collision is when the city we'd grab is already in the child.
@@ -251,8 +255,8 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
       
       if(get_from_a) {
          p_a_index--; // working backwards...
-      
-         if(p_a_index < 0 || p_a_index > num_cities - 1) { // then we're out of bounds
+         // if out of bounds
+         if(p_a_index < 0 || p_a_index > num_cities - 1) {
             get_from_a = false;
          }
          else {      
@@ -282,7 +286,7 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
             if(itl == child.end()) { // then the city is not yet in the child.
                
                child.push_back(parent_b[p_b_index]); // Add to end!
-               cities_remaining.remove(parent_b[p_b_index]);
+	       cities_remaining.remove(parent_b[p_b_index]);
             }
             else {
                get_from_b = false;
@@ -290,11 +294,10 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
          }
       }
    }
-   
-   // Add the remaining cities to the child at random.
+
+   // Add the remaining cities to the end of the child at random.
    while(cities_remaining.size() > 0) {
       random_city_i = rand() % cities_remaining.size();
-      
       itl = cities_remaining.begin();
       for(int i = 0; i < random_city_i; i++) {
          itl++;
@@ -302,16 +305,19 @@ void Population::Crossover(vector<int> parent_a, vector<int> parent_b) {
       child.push_back(*itl);
       cities_remaining.remove(*itl);
    }
-   
+      
    // add child to new_individuals
    for(itl = child.begin(); itl != child.end(); itl++) {
       child_vec.push_back(*itl);
    }
-   
-   #pragma omp critical 
-   {
+
+#pragma omp critical (add_new_child)
+   { 
+     if((int)child_vec.size() == num_cities)
+     {
       Individual new_individual (child_vec);
       this->new_individuals.push_back(new_individual);
+     }
    }
 }
 
@@ -427,30 +433,35 @@ void Population::Genesis() {
 void Population::Evaluate() {
    vector<int> temp_chromosome;
    set<int> city_pair;
-   unsigned int i, j;
+   int i, j;
    double fitness_sum = 0;
+   double loop_fitness_sum = 0;
    
    // for each indiviual in the new population
-   #pragma omp parallel for private(i, temp_chromosome, fitness_sum, city_pair)
-   for(i = 0; i < new_individuals.size(); i++) {
+#pragma omp parallel for private(i, temp_chromosome, fitness_sum, city_pair)
+   for(i = 0; i < (int)new_individuals.size(); i++) {
       temp_chromosome = new_individuals[i].Chromosome();
       // sum the cost for each adjacent city-pair in an indiviual's chromsome
-      #pragma omp parallel for private(j, city_pair) reduction(+: fitness_sum)
-      for(j = 0; j < temp_chromosome.size() - 1; j++) {
+#pragma omp parallel for private(j, city_pair) reduction(+: loop_fitness_sum)
+      for(j = 0; j < (int)temp_chromosome.size() - 1; j++) {
          city_pair.insert(temp_chromosome[j]);
          city_pair.insert(temp_chromosome[j+1]);
-         fitness_sum += this->cost_table[city_pair];
+         loop_fitness_sum += this->cost_table[city_pair];
          city_pair.clear();
       }
+
+      fitness_sum = loop_fitness_sum;
+
       // Take into consideration the cost to return to the destination
       city_pair.insert(temp_chromosome[0]);
       city_pair.insert(temp_chromosome[temp_chromosome.size()-1]);
       fitness_sum += this->cost_table[city_pair];
       city_pair.clear();
-      
+
       new_individuals[i].Raw_Fitness(fitness_sum);
       // reset the sum for the next individual
       fitness_sum = 0;
+      loop_fitness_sum = 0;
       
       // add an entry in the uniques hash
       #pragma omp critical 

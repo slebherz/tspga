@@ -12,19 +12,21 @@
          c) Merge
 */
 
+#include <stdlib.h>
 #include <iostream>
 #include <cstdio>
 #include <time.h>
 #include <sys/time.h>
 #include "population.h"
 #include "individual.h"
+#include <omp.h>
 
 using namespace std;
 
 #define EPSILON              0               // A percent (of the best path)
 #define BEST_PATH            847             // Brute force tsp solution
-#define MAX_ITERATIONS       100000          // Stop evolve loop when reached
-#define MAX_STALE            1000             // Max consecutive iterations
+#define MAX_ITERATIONS       10000           // Stop evolve loop when reached
+#define MAX_STALE            1000            // Max consecutive iterations
                                              //    allowed without improvement
 #define POP_SIZE             200             // Size of popultion. this is the 
                                              //    number of paths that Genesis
@@ -34,18 +36,25 @@ using namespace std;
 #define INITIAL_PATHS_FNAME  "initial.dat"   // Paths for initial population
 #define TSP_DATA_FNAME       "tsp.dat"       // TSP loaded from here
 
+// Only one of these should ever be set to true at once.
+#define PLOT_ITER            false
+#define PLOT_FIT             false
+
 bool terminate(int num_iterations, double highest_fitness, int stale_iterations);
 void log(int num_iterations, Population* tsp_pop);
 
 int main() {
+   setbuf(stdout, NULL); // so when we print the plotting output it prints NOW
+   srand(time(NULL));
+
    // Timing stuff
    struct timeval systime, systime2;
 	double t1, t2, t3, t4, total_time, total_iter_time;
    total_iter_time = 0;
-   
+
    // GA stuff
    int num_iterations = 0;
-   int last_fitness = 0;
+   double last_fitness = 0;
    int stale_iterations = 0;
    
    /* Start GA Timer */
@@ -71,10 +80,11 @@ int main() {
          4) log dump, visualization update, etc...
    */
 
-   while(!terminate(num_iterations, tsp_pop.Fittest().Raw_Fitness(), stale_iterations)) {
+   while(!terminate(num_iterations, tsp_pop.Fittest().Raw_Fitness(),
+                    stale_iterations)) {
       // Start Iteration Timer
       gettimeofday(&systime2,NULL);
-	   t3 = systime2.tv_sec + (systime2.tv_usec/1000000.0);
+      t3 = systime2.tv_sec + (systime2.tv_usec/1000000.0);
       
       tsp_pop.Reproduce();
       tsp_pop.Evaluate();
@@ -82,7 +92,7 @@ int main() {
       
       // End Iteration Timer
       gettimeofday(&systime2,NULL);
-	   t4 = systime2.tv_sec + (systime2.tv_usec/1000000.0);
+      t4 = systime2.tv_sec + (systime2.tv_usec/1000000.0);
       total_iter_time += (t4 - t3);
       
       num_iterations++;
@@ -100,6 +110,16 @@ int main() {
       if(num_iterations % 10 == 0) {
          log(num_iterations, &tsp_pop);
       }
+      
+      // output plotting updates every generation
+      if(PLOT_ITER || PLOT_FIT) {
+         if(PLOT_ITER) {
+            printf("%.4f\n", (t4 - t3));
+         }
+         else if (PLOT_FIT) {
+            printf("%.0f %.1f %d\n", tsp_pop.Fittest().Raw_Fitness(), tsp_pop.Avg_Fitness(), BEST_PATH); 
+         }
+      }
    }
   
    /* End GA Timer */
@@ -109,15 +129,16 @@ int main() {
    
    // Did we find the optimal path?
    if(tsp_pop.Fittest().Raw_Fitness() == BEST_PATH) {
-      cout << "Optimal path (" << BEST_PATH << ") found!" << endl;
+     fprintf(stderr, "Best path (%d) found!\n", BEST_PATH);
    }
    else {
-      cout << "Optimal path (" << BEST_PATH << ") NOT found!" << endl;
+      fprintf(stderr, "Best path NOT found!\n");
    }
    
-   printf("GA Time: %.1lf (seconds)\n", total_time);
-   printf("Avg Iteration Time: %.4lf (seconds)\n", total_iter_time/(double)num_iterations);
+   fprintf(stderr, "GA Time: %.1lf (seconds)\n", total_time);
+   fprintf(stderr, "Avg Iteration Time: %.4lf (seconds)\n", total_iter_time/(double)num_iterations);
    log(num_iterations, &tsp_pop);
+   
    return 0;
 }
 
@@ -127,11 +148,11 @@ int main() {
       2) Fittest individual's path is within epsilon of the best path.
 */
 bool terminate(int num_iterations, double highest_fitness, int stale_iterations) {
-   if(num_iterations == MAX_ITERATIONS)
+   if(num_iterations == MAX_ITERATIONS) 
       return true;
    
    if((highest_fitness - BEST_PATH) <= (EPSILON * BEST_PATH))
-      return true;
+     return true;
 
    if(stale_iterations == MAX_STALE)
       return true;
@@ -146,9 +167,9 @@ bool terminate(int num_iterations, double highest_fitness, int stale_iterations)
       Fittest Individual
 */
 void log(int num_iterations, Population* tsp_pop) {
-   cout << "Generation: " << num_iterations << endl;
-   printf("Average Fitness: %.1f\n", tsp_pop->Avg_Fitness());
-   cout << "Fittest Individual:" << endl;
+   fprintf(stderr, "Generation: %d\n", num_iterations);
+   fprintf(stderr, "Average Fitness: %.1f\n", tsp_pop->Avg_Fitness());
+   fprintf(stderr, "Fittest Individual:\n");
    tsp_pop->Fittest().Print();
-   cout << endl << endl;
+   fprintf(stderr, "\n\n");
 }

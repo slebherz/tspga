@@ -1,0 +1,34 @@
+A packing list of the source files submitted
+
+#################################
+   Miscellaneous
+GA QUICKSTART.txt
+Makefile             Builds the TSPGA
+feedGnuplot.pl       Script that feeds gnuplot with real-time GA output
+feedGnuplot_README
+
+#################################
+   TSP GA Source
+tspga.cpp            Defines the main GA evolution loop
+
+individual.h         Defines an Individual in the GA
+individual.cpp      
+population.h    
+population.cpp       Defines a Population in the GA
+
+explode.h            Helper function for TSP input file parsing
+explode.cpp
+
+#################################
+   New TSP Generators
+tsp-builder.py       Generates a new TSP given the number of cities and desired cost range
+tsp.tsp              TSP generated in the concorde solver format
+tsp.dat              TSP generated in the TSPGA and brute force solver format
+
+tsp-initial-paths.py Generates random paths given the number of cities in the TSP
+initial.dat          Random initial paths that seed the GA
+
+#################################
+   Alternate TSP Solvers
+brute-force-tsp.py   Brute force TSP solver, useful for solving TSPs with less than 11 cities
+concorde             High speed TSP solver, see: www.tsp.gatech.edu/concorde.html for more information

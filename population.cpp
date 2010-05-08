@@ -435,22 +435,19 @@ void Population::Evaluate() {
    set<int> city_pair;
    int i, j;
    double fitness_sum = 0;
-   double loop_fitness_sum = 0;
    
    // for each indiviual in the new population
-#pragma omp parallel for private(i, temp_chromosome, fitness_sum, city_pair)
+#pragma omp parallel for private(i, temp_chromosome, city_pair) firstprivate(fitness_sum)
    for(i = 0; i < (int)new_individuals.size(); i++) {
       temp_chromosome = new_individuals[i].Chromosome();
       // sum the cost for each adjacent city-pair in an indiviual's chromsome
-#pragma omp parallel for private(j, city_pair) reduction(+: loop_fitness_sum)
+#pragma omp parallel for private(j, city_pair) reduction(+: fitness_sum)
       for(j = 0; j < (int)temp_chromosome.size() - 1; j++) {
          city_pair.insert(temp_chromosome[j]);
          city_pair.insert(temp_chromosome[j+1]);
-         loop_fitness_sum += this->cost_table[city_pair];
+         fitness_sum += this->cost_table[city_pair];
          city_pair.clear();
       }
-
-      fitness_sum = loop_fitness_sum;
 
       // Take into consideration the cost to return to the destination
       city_pair.insert(temp_chromosome[0]);
@@ -461,7 +458,6 @@ void Population::Evaluate() {
       new_individuals[i].Raw_Fitness(fitness_sum);
       // reset the sum for the next individual
       fitness_sum = 0;
-      loop_fitness_sum = 0;
       
       // add an entry in the uniques hash
       #pragma omp critical 

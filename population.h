@@ -1,4 +1,9 @@
 /*
+   File: population.h
+   Authors: Sam Lebherz (slebher1), Andrew Sillers (andsil1)
+   TSP Genetic Algorithm
+   CMSC 491, Spring 2010
+   
    Population Class - Maintains a population of individuals, each
                       representing a possible solution to a TSP.
 */
